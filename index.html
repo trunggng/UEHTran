@@ -1,285 +1,3083 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diễn Đàn Game: Pixelated Perspectives</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Pixelated Dusk (inspired by user image) -->
-    <!-- Application Structure Plan: A single-page application simulating a game forum. A tabbed interface managed by JavaScript allows users to switch between forum categories without page reloads. A new static "About the Game" section provides core game information. This design prioritizes a modern, seamless user experience while capturing the aesthetic of the source image and integrating new game details. -->
-    <!-- Visualization & Content Choices: Forum Posts -> Goal: Display forum threads -> Viz: Styled HTML list -> Interaction: Tab filtering via JS. About Game Section -> Goal: Inform about game concept -> Viz: Text blocks with thematic icons (Unicode) -> Interaction: Static display. Aesthetic -> Goal: Match pixel art image -> Viz: Custom CSS for pixel fonts, blocky borders, and specific color palette. This design uses only HTML/CSS/JS for all visuals and interactions. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'VT323', monospace;
-            background-color: #2c2a4a;
-            color: #e5d7e5;
-            font-size: 20px;
-            letter-spacing: 1px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UEH StudyBuddy - Trợ lý ảo sinh viên UEH</title>
+  
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            ueh: {
+              teal: '#2F6F75',
+              'teal-dark': '#23555A',
+              'teal-light': '#3D868D',
+              'sidebar': '#397076',
+              'sidebar-hover': '#437F86',
+              'sidebar-active': '#588F96',
+              'accent-orange': '#F27038',
+              'bg-soft': '#EBF4F6',
+              'card-bg': '#FFFFFF',
+              'chip-bg': '#E4F1F2',
+              'badge-cyan': '#C6E8EB'
+            }
+          }
         }
-        .pixel-border {
-            border: 4px solid #4f4a7e;
-            box-shadow: 4px 4px 0px #1e1c32;
-        }
-        .pixel-border-inner {
-            border: 4px solid #4f4a7e;
-        }
-        .pixel-button {
-            background-color: #4f4a7e;
-            border: 4px solid #1e1c32;
-            box-shadow: 4px 4px 0px #1e1c32;
-            transition: all 0.1s ease-in-out;
-            position: relative;
-        }
-        .pixel-button:hover {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px #1e1c32;
-        }
-        .pixel-button:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #1e1c32;
-        }
-        .tab.active {
-            background-color: #ff8b5a;
-            color: #2c2a4a;
-        }
-        .text-accent {
-            color: #ffc974;
-        }
-        .text-highlight {
-            color: #ff8b5a;
-        }
-        .hero-banner {
-            background: linear-gradient(180deg, rgba(44,42,74,1) 0%, rgba(255,139,90,0.5) 100%),
-                        url('https://placehold.co/1200x400/2c2a4a/e5d7e5?text=Pixelated+Perspectives');
-            background-size: cover;
-            background-position: center;
-        }
-        .post-item:hover {
-            background-color: #3a3661;
-        }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Nền phong cảnh khuôn viên UEH vector nghệ thuật chuẩn tỷ lệ laptop & mobile */
+    .ueh-campus-bg {
+      background: linear-gradient(180deg, #CEE9ED 0%, #DFF1F3 40%, #EBF7F8 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .campus-illustration {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.95;
+    }
+
+    /* Thanh cuộn giao diện mượt */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(220, 235, 238, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #A6D0D5;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #75B0B7;
+    }
+
+    /* Đảm bảo chiều cao màn hình trên iOS Safari */
+    .h-screen-safe {
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* Hiệu ứng chuyển động */
+    .animate-fade-in {
+      animation: fadeIn 0.2s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-<body class="antialiased">
+<body class="font-sans bg-[#EEF5F6] text-slate-700 antialiased h-screen-safe overflow-hidden select-none">
 
-    <div class="container mx-auto p-4 max-w-6xl">
+  <!-- ========================================== -->
+  <!-- 1. MÀN HÌNH ĐĂNG NHẬP (RESPONSIVE LAPTOP & MOBILE) -->
+  <!-- ========================================== -->
+  <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center lg:justify-end p-4 sm:p-6 lg:p-12 ueh-campus-bg transition-opacity duration-300 overflow-y-auto">
+    
+    <!-- Vector minh hoạ toà nhà UEH cơ sở Nam Sài Gòn / Nguyễn Tri Phương -->
+    <svg class="campus-illustration hidden md:block" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#C2E6EB" />
+          <stop offset="100%" stop-color="#E8F6F8" />
+        </linearGradient>
+        <linearGradient id="buildingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#B2D9DE" />
+          <stop offset="100%" stop-color="#8BBEC5" />
+        </linearGradient>
+        <linearGradient id="treeGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#72B799" />
+          <stop offset="100%" stop-color="#3C7F6A" />
+        </linearGradient>
+        <linearGradient id="treeGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#88C7A8" />
+          <stop offset="100%" stop-color="#4B9079" />
+        </linearGradient>
+      </defs>
+
+      <path d="M 0 350 C 300 310, 500 370, 800 340 C 1100 310, 1300 380, 1600 330 L 1600 900 L 0 900 Z" fill="#D8EEF1" opacity="0.6"/>
+      <path d="M 0 460 C 250 420, 600 480, 950 430 C 1300 390, 1400 450, 1600 420 L 1600 900 L 0 900 Z" fill="#E2F4F6" opacity="0.7"/>
+
+      <g opacity="0.85">
+        <rect x="0" y="520" width="480" height="380" fill="url(#buildingGrad)" rx="8" />
+        <g fill="#CEEAED" opacity="0.8">
+          <rect x="20" y="550" width="80" height="35" rx="3" />
+          <rect x="120" y="550" width="80" height="35" rx="3" />
+          <rect x="220" y="550" width="80" height="35" rx="3" />
+          <rect x="320" y="550" width="80" height="35" rx="3" />
+          <rect x="20" y="605" width="80" height="35" rx="3" />
+          <rect x="120" y="605" width="80" height="35" rx="3" />
+          <rect x="220" y="605" width="80" height="35" rx="3" />
+          <rect x="320" y="605" width="80" height="35" rx="3" />
+        </g>
         
-        <!-- Header -->
-        <header class="pixel-border bg-[#4f4a7e] p-4 flex justify-between items-center mb-6">
-            <h1 class="text-4xl text-accent">Pixelated Perspectives</h1>
-            <div class="flex items-center space-x-4">
-                <a href="#" class="hover:text-highlight">Đăng Nhập</a>
-                <a href="#" class="pixel-button px-4 py-1">Đăng Ký</a>
-            </div>
-        </header>
+        <rect x="340" y="630" width="180" height="270" fill="#C5E4E8" rx="6" />
+        <text x="360" y="720" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="44" fill="#36777E" letter-spacing="2">UEH</text>
 
-        <!-- Hero Banner -->
-        <section class="hero-banner pixel-border h-64 flex flex-col justify-center items-center text-center p-4 mb-6">
-            <h2 class="text-5xl font-bold text-white mb-2" style="text-shadow: 4px 4px 0px #1e1c32;">Chào mừng các Nhiếp Ảnh Gia!</h2>
-            <p class="text-xl text-white" style="text-shadow: 2px 2px 0px #1e1c32;">Nơi chia sẻ những khoảnh khắc và câu chuyện qua ống kính pixel.</p>
-        </section>
+        <circle cx="120" cy="810" r="110" fill="url(#treeGrad1)" opacity="0.9" />
+        <circle cx="210" cy="830" r="95" fill="url(#treeGrad2)" />
+        <circle cx="290" cy="850" r="120" fill="url(#treeGrad1)" />
+        <circle cx="440" cy="850" r="90" fill="url(#treeGrad2)" />
+        <circle cx="600" cy="870" r="100" fill="url(#treeGrad1)" opacity="0.8" />
+      </g>
+    </svg>
 
-        <!-- About the Game Section -->
-        <section class="pixel-border bg-[#3a3661] p-6 mb-6">
-            <h3 class="text-3xl text-accent border-b-4 border-dotted border-[#2c2a4a] mb-4 pb-2">Về Game: Photographer – Snap & Complete Quests</h3>
-            <div class="space-y-4 text-lg text-gray-300">
-                <p>
-                    🎮 **Thể loại:** 2D Pixel | Giả lập nhiếp ảnh | Nhiệm vụ đời thường | Thư giãn
-                </p>
-                <p>
-                    📸 **Giới thiệu:** Bạn vào vai một học sinh đam mê nhiếp ảnh vừa bắt đầu hành trình lưu giữ kỷ niệm qua ống kính. Thế giới trong game là một môi trường học đường đầy sắc màu và kỷ niệm, nơi bạn thực hiện các nhiệm vụ chụp ảnh cho thầy cô, bạn bè và những sự kiện đời thường dễ thương.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p>👦👧 **Tùy chọn nhân vật:**</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Chọn nam hoặc nữ với phong cách riêng</li>
-                            <li>Tuỳ chỉnh trang phục, kiểu tóc, balo, phụ kiện máy ảnh</li>
-                            <li>Giao tiếp với NPC theo cốt truyện nhẹ nhàng và thân thiện</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <p>📝 **Nhiệm vụ:**</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Kỷ yếu cuối cấp</li>
-                            <li>Ảnh cưới cặp đôi học trò</li>
-                            <li>Ảnh nhóm bạn thân</li>
-                            <li>Khoảnh khắc sân trường, động vật ngộ nghĩnh, hội chợ, trận bóng...</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p>🏪 **Cửa hàng:**</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Mua ống kính mới, máy ảnh tốt hơn, filter màu, tripod</li>
-                            <li>Nâng cấp film, túi máy ảnh, khung hình đặc biệt</li>
-                            <li>Trang trí studio nhỏ trong phòng hoặc góc học sinh</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <p>🌈 **Môi trường & Hình ảnh:**</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Khám phá nhiều khu vực như sân trường, công viên, nhà xe, hồ nước, đồng cỏ</li>
-                            <li>Màu sắc tươi sáng – rực rỡ, phong cách pixel art cổ điển</li>
-                            <li>Nhạc nền nhẹ nhàng tạo cảm giác thư giãn và hoài niệm</li>
-                        </ul>
-                    </div>
-                </div>
-                <p>
-                    🎯 **Mục tiêu:** Ghi lại từng khoảnh khắc nhỏ bé nhưng quý giá, hoàn thành bộ sưu tập ảnh, nâng cấp kỹ năng và trở thành nhiếp ảnh gia đáng nhớ nhất trường.
-                </p>
-            </div>
-        </section>
+    <!-- Form Đăng Nhập thích ứng: laptop rộng rãi 520px, mobile co giãn 100% -->
+    <div class="relative z-10 w-full max-w-[460px] lg:max-w-[500px] bg-white rounded-3xl p-6 sm:p-10 shadow-[0_20px_50px_rgba(30,85,92,0.18)] border border-white/80 my-auto">
+      
+      <!-- Logo UEH StudyBuddy -->
+      <div class="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+        <span class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0F5661]">UEH</span>
+        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-[#00A3B4]" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="14" r="5" fill="#F27038" />
+          <path d="M7 32C12 25 18 24 23 27C23 27 23 38 23 40C16 38 11 39 7 42V32Z" fill="#00A8B5" />
+          <path d="M41 32C36 25 30 24 25 27C25 27 25 38 25 40C32 38 37 39 41 42V32Z" fill="#00A8B5" />
+        </svg>
+        <span class="text-3xl sm:text-4xl font-bold tracking-tight text-[#00A3B4]">StudyBuddy</span>
+      </div>
 
-        <!-- Main Content -->
-        <div class="flex flex-col md:flex-row gap-6">
-
-            <!-- Left: Forum Posts -->
-            <main class="w-full md:w-3/4">
-                <div class="pixel-border bg-[#4f4a7e]">
-                    <!-- Tabs -->
-                    <nav class="flex border-b-4 border-[#4f4a7e]">
-                        <button data-category="general" class="tab flex-1 p-3 text-xl hover:bg-[#ff8b5a] hover:text-[#2c2a4a] active">Thảo luận chung</button>
-                        <button data-category="showcase" class="tab flex-1 p-3 text-xl hover:bg-[#ff8b5a] hover:text-[#2c2a4a]">Showcase Nhiếp ảnh</button>
-                        <button data-category="characters" class="tab flex-1 p-3 text-xl hover:bg-[#ff8b5a] hover:text-[#2c2a4a]">Nhân vật & Trang phục</button>
-                        <button data-category="quests" class="tab flex-1 p-3 text-xl hover:bg-[#ff8b5a] hover:text-[#2c2a4a]">Nhiệm vụ & Cửa hàng</button>
-                        <button data-category="guides" class="tab flex-1 p-3 text-xl hover:bg-[#ff8b5a] hover:text-[#2c2a4a]">Hướng dẫn & Mẹo</button>
-                    </nav>
-                    
-                    <!-- Post List -->
-                    <div id="post-list" class="p-4 space-y-2">
-                        <!-- Posts will be rendered here by JavaScript -->
-                    </div>
-                </div>
-            </main>
-
-            <!-- Right: Sidebar -->
-            <aside class="w-full md:w-1/4">
-                <div class="pixel-border bg-[#4f4a7e] p-4 mb-6">
-                    <h3 class="text-2xl text-accent border-b-4 border-dotted border-[#2c2a4a] mb-4 pb-2">Bài Viết Ghim</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="hover:text-highlight">📌 Nội quy diễn đàn</a></li>
-                        <li><a href="#" class="hover:text-highlight">📌 Lộ trình phát triển game</a></li>
-                        <li><a href="#" class="hover:text-highlight">📌 Cuộc thi ảnh tháng 7</a></li>
-                    </ul>
-                </div>
-
-                <div class="pixel-border bg-[#4f4a7e] p-4">
-                    <h3 class="text-2xl text-accent border-b-4 border-dotted border-[#2c2a4a] mb-4 pb-2">Nhiếp Ảnh Gia Nổi Bật</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center">
-                            <span class="text-yellow-400 mr-2">🥇</span>
-                            <span>PixelHunter</span>
-                        </li>
-                        <li class="flex items-center">
-                            <span class="text-gray-400 mr-2">🥈</span>
-                            <span>Shutterbug</span>
-                        </li>
-                        <li class="flex items-center">
-                            <span class="text-orange-400 mr-2">🥉</span>
-                            <span>LensQueen</span>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
-
+      <!-- Container Đăng Nhập -->
+      <div id="login-container">
+        <!-- Tab Chuyển Đổi: Mật khẩu / Email UEH -->
+        <div class="grid grid-cols-2 gap-2 mb-6 bg-[#EDF6F7] p-1.5 rounded-2xl">
+          <button type="button" id="tab-login-pwd" onclick="switchLoginTab('password')" class="flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 bg-[#BDDEE2] text-[#1E575E] shadow-sm">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            Mật khẩu
+          </button>
+          <button type="button" id="tab-login-email" onclick="switchLoginTab('email')" class="flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 text-slate-500 hover:text-[#1E575E]">
+            <i data-lucide="mail" class="w-4 h-4"></i>
+            Email UEH
+          </button>
         </div>
 
-        <!-- Footer -->
-        <footer class="text-center text-gray-400 mt-8 text-lg">
-            <p>&copy; 2025 Pixelated Perspectives - Diễn đàn cho game "Photographer".</p>
-            <p>Bản quyền thuộc về TRUNG MINER TEAM.</p>
-        </footer>
+      <!-- Form nhập -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4 sm:space-y-5">
+        <!-- Field 1: Tài khoản -->
+        <div>
+          <label id="label-account" class="block text-xs sm:text-sm font-semibold text-[#27646B] mb-1.5">Tài khoản / Account</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="user" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </span>
+            <input type="text" id="login-username" required placeholder="Nhập tài khoản / Enter your account"
+              class="w-full pl-10 sm:pl-11 pr-4 py-3 rounded-xl border border-slate-300 text-slate-700 placeholder-slate-400 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white">
+          </div>
+        </div>
+
+        <!-- Field 2: Mật khẩu -->
+        <div>
+          <label class="block text-xs sm:text-sm font-semibold text-[#27646B] mb-1.5">Mật khẩu / Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="lock" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </span>
+            <input type="password" id="login-password" required placeholder="Nhập mật khẩu / Enter your password"
+              class="w-full pl-10 sm:pl-11 pr-11 py-3 rounded-xl border border-slate-300 text-slate-700 placeholder-slate-400 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-[#2F6F75] transition focus:outline-none cursor-pointer" title="Hiện/ẩn mật khẩu">
+              <i id="toggle-password-icon" data-lucide="eye" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quên mật khẩu -->
+        <div class="flex items-center justify-end text-xs sm:text-sm pt-0.5">
+          <button type="button" onclick="showNotificationToast('Vui lòng liên hệ DSA UEH để khôi phục mật khẩu sinh viên.')" class="text-xs text-[#2F6F75] font-semibold hover:underline">
+            Quên mật khẩu?
+          </button>
+        </div>
+
+        <!-- Thông báo lỗi khi đăng nhập sai -->
+        <div id="login-error" class="hidden p-3 rounded-xl bg-red-50 text-red-600 text-xs font-medium border border-red-200">
+          Sai tên tài khoản hoặc mật khẩu. Vui lòng thử lại!
+        </div>
+
+        <!-- Nút Đăng nhập -->
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-[#2F6F75] hover:bg-[#255C61] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#2F6F75]/25 transition-all">
+          Đăng nhập
+        </button>
+      </form>
+      
+      <!-- Chuyển sang form Đăng ký -->
+      <div class="mt-5 text-center text-sm font-medium text-slate-600">
+        Chưa có tài khoản? <button type="button" onclick="toggleAuthMode('register')" class="text-[#2F6F75] hover:underline font-bold transition">Đăng ký ngay</button>
+      </div>
+      </div>
+
+      <!-- Container Đăng Ký (Ẩn mặc định) -->
+      <div id="register-container" class="hidden animate-fade-in">
+        <h3 class="text-center text-[#1E575E] font-extrabold text-lg sm:text-xl mb-4 sm:mb-5">Đăng ký tài khoản</h3>
+        <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 sm:space-y-4">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Tên tài khoản (Account) *</label>
+              <input type="text" id="reg-name" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white" placeholder="VD: Nguyễn Văn A">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Tên đăng nhập *</label>
+              <input type="text" id="reg-username" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white" placeholder="VD: ueher02">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Email UEH *</label>
+            <input type="email" id="reg-email" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white" placeholder="VD: a.nguyen@st.ueh.edu.vn">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Khóa *</label>
+              <select id="reg-batch" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white">
+                <option value="K52">Khóa 52 (Tuyển sinh 2026)</option>
+                <option value="K51">Khóa 51 (Tuyển sinh 2025)</option>
+                <option value="K50">Khóa 50 (Tuyển sinh 2024)</option>
+                <option value="K49">Khóa 49 (Tuyển sinh 2023)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Ngày sinh *</label>
+              <input type="date" id="reg-dob" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-700 focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Mật khẩu *</label>
+              <input type="password" id="reg-password" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white" placeholder="Nhập mật khẩu">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#27646B] mb-1.5">Nhập lại mật khẩu *</label>
+              <input type="password" id="reg-repassword" required minlength="6" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#2F6F75] focus:ring-2 focus:ring-[#2F6F75]/20 bg-white" placeholder="Xác nhận mật khẩu">
+            </div>
+          </div>
+
+          <div id="reg-error" class="hidden p-3 rounded-xl bg-red-50 text-red-600 text-xs font-medium border border-red-200"></div>
+          
+          <button type="submit" class="w-full mt-2 py-3.5 rounded-xl bg-[#2F6F75] hover:bg-[#255C61] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-md shadow-[#2F6F75]/25 transition-all">
+            Đăng ký tài khoản
+          </button>
+        </form>
+
+        <div class="mt-5 text-center text-sm font-medium text-slate-600">
+          Đã có tài khoản? <button type="button" onclick="toggleAuthMode('login')" class="text-[#2F6F75] hover:underline font-bold transition">Đăng nhập</button>
+        </div>
+      </div>
 
     </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mockPosts = {
-                general: [
-                    { title: 'Bạn thích nhất khu vực nào trong game?', author: 'PixelHunter', replies: 15, views: 120 },
-                    { title: 'Thảo luận về cốt truyện nhẹ nhàng của game', author: 'StorySeeker', replies: 22, views: 250 },
-                    { title: 'Tìm bạn chơi chung để hoàn thành nhiệm vụ cặp đôi!', author: 'GamerGirl', replies: 5, views: 80 },
-                    { title: 'Cảm nhận về không khí học đường trong game?', author: 'NostalgiaFan', replies: 10, views: 180 },
-                ],
-                showcase: [
-                    { title: '[Showcase] Bộ ảnh kỷ yếu của lớp tôi!', author: 'LensQueen', replies: 30, views: 400 },
-                    { title: '[Showcase] Khoảnh khắc sân trường đầy nắng', author: 'NatureSnap', replies: 18, views: 310 },
-                    { title: '[Showcase] Ảnh cưới cặp đôi học trò dễ thương', author: 'LoveBird', replies: 25, views: 350 },
-                    { title: '[Showcase] Động vật ngộ nghĩnh ở công viên', author: 'WildLens', replies: 12, views: 280 },
-                    { title: '[Showcase] Hội chợ trường học sôi động!', author: 'EventPhotog', replies: 8, views: 190 },
-                ],
-                characters: [
-                    { title: 'Phong cách trang phục yêu thích của bạn là gì?', author: 'Fashionista', replies: 15, views: 200 },
-                    { title: 'Kiểu tóc nào hợp với nhân vật nữ nhất?', author: 'HairStylist', replies: 7, views: 110 },
-                    { title: 'Balo nào đẹp nhất để đi chụp ảnh?', author: 'BackpackLover', replies: 9, views: 130 },
-                    { title: 'NPC nào bạn muốn chụp ảnh nhất?', author: 'Fanboy', replies: 20, views: 280 },
-                ],
-                quests: [
-                    { title: 'Nhiệm vụ "Trận bóng" có khó không?', author: 'SportsFan', replies: 10, views: 150 },
-                    { title: 'Ống kính nào tốt nhất cho nhiệm vụ "Kỷ yếu cuối cấp"?', author: 'ProGear', replies: 18, views: 220 },
-                    { title: 'Cần bao nhiêu tiền để mua máy ảnh tốt nhất?', author: 'MoneyMaker', replies: 14, views: 190 },
-                    { title: 'Có ai đã trang trí studio của mình chưa? Chia sẻ ảnh!', author: 'HomeDecor', replies: 25, views: 300 },
-                ],
-                guides: [
-                    { title: '[Guide] Cách chụp ảnh "phơi sáng" hoàn hảo', author: 'ProGamer', replies: 40, views: 800 },
-                    { title: '[Guide] Vị trí tất cả các vật phẩm ẩn', author: 'Completionist', replies: 55, views: 1200 },
-                    { title: '[Guide] Mẹo tìm động vật ngộ nghĩnh trên bản đồ', author: 'AnimalWhisperer', replies: 12, views: 380 },
-                    { title: '[Guide] Hướng dẫn sử dụng filter màu hiệu quả', author: 'ColorMaster', replies: 9, views: 210 },
-                ]
-            };
+  <!-- ========================================== -->
+  <!-- 2. GIAO DIỆN CHÍNH (MAIN DASHBOARD SPA)   -->
+  <!-- ========================================== -->
+  <div id="app-view" class="h-screen-safe w-full flex flex-col lg:flex-row bg-[#EEF5F6] hidden">
+    
+    <!-- HEADER CHO MOBILE (Hiển thị khi dưới màn hình lg) -->
+    <header class="lg:hidden h-14 bg-[#366E74] text-white flex items-center justify-between px-4 shrink-0 shadow-md z-40">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
+        <span class="text-xl font-black text-white tracking-wide">UEH</span>
+        <span class="text-xl font-bold text-[#A5E3E9]">StudyBuddy</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleMobileSidebar()" class="p-2 rounded-xl text-white hover:bg-white/10 transition" title="Mở danh mục">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </header>
 
-            const postListContainer = document.getElementById('post-list');
-            const tabs = document.querySelectorAll('.tab');
+    <!-- BACKDROP CHO MOBILE KHI MỞ DRAWER MENU -->
+    <div id="mobile-sidebar-backdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 hidden lg:hidden transition-opacity duration-200"></div>
+
+    <!-- SIDEBAR BÊN TRÁI: Cố định trên laptop (lg:w-64 xl:w-72) & Dạng Drawer trượt trên mobile -->
+    <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:static lg:z-30 lg:w-64 xl:w-72 bg-[#366E74] text-white flex flex-col justify-between shrink-0 shadow-xl transition-transform duration-300 -translate-x-full lg:translate-x-0 select-none">
+      
+      <div class="p-5 flex flex-col h-full overflow-y-auto">
+        <!-- Logo thương hiệu UEH StudyBuddy -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home'); closeMobileSidebar();">
+            <span class="text-2xl font-black text-white tracking-wide">UEH</span>
+            <span class="text-2xl font-bold text-[#A5E3E9]">StudyBuddy</span>
+          </div>
+          <!-- Nút đóng trên mobile drawer -->
+          <button onclick="closeMobileSidebar()" class="lg:hidden p-1.5 rounded-lg text-white/80 hover:bg-white/10">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Danh mục điều hướng -->
+        <nav class="space-y-1.5 flex-1">
+          <!-- Item 1: Trang chủ -->
+          <button onclick="navigateTo('home'); closeMobileSidebar();" id="nav-btn-home"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="home" class="w-5 h-5 shrink-0"></i>
+            <span>Trang chủ</span>
+          </button>
+
+          <!-- Item 2: Chat với StudyBuddy -->
+          <button onclick="navigateTo('chat'); closeMobileSidebar();" id="nav-btn-chat"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+            <span>Chat với StudyBuddy</span>
+          </button>
+
+          <!-- Item 3: Lịch cá nhân -->
+          <button onclick="navigateTo('calendar'); closeMobileSidebar();" id="nav-btn-calendar"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="calendar" class="w-5 h-5 shrink-0"></i>
+            <span>Lịch cá nhân</span>
+          </button>
+
+          <!-- Item 4: Thông tin học tập -->
+          <button onclick="navigateTo('study-info'); closeMobileSidebar();" id="nav-btn-study-info"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="book-open" class="w-5 h-5 shrink-0"></i>
+            <span>Thông tin học tập</span>
+          </button>
+
+          <!-- Item 5: Thông báo -->
+          <button onclick="navigateTo('notifications'); closeMobileSidebar();" id="nav-btn-notifications"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+            <span>Thông báo</span>
+            <span id="unread-badge" class="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">5</span>
+          </button>
+
+          <!-- Item 6: To-Do List -->
+          <button onclick="navigateTo('todo'); closeMobileSidebar();" id="nav-btn-todo"
+            class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150 text-white hover:bg-white/10">
+            <i data-lucide="clipboard-check" class="w-5 h-5 shrink-0"></i>
+            <span>To-Do List</span>
+            <span id="pending-todo-badge" class="ml-auto bg-[#67B5BC] text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">5</span>
+          </button>
+
+          <!-- Menu Quản Trị Viên (chỉ hiển thị khi Admin đăng nhập) -->
+          <div id="admin-menu-section" class="pt-4 mt-4 border-t border-white/15 hidden">
+            <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-cyan-200/80 mb-2">QUẢN TRỊ VIÊN</p>
+            <button onclick="navigateTo('admin'); closeMobileSidebar();" id="nav-btn-admin"
+              class="nav-tab-item w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl font-medium text-sm transition-all text-amber-300 hover:bg-white/10">
+              <i data-lucide="shield-check" class="w-5 h-5 shrink-0"></i>
+              <span>Quản lý hệ thống</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Phần chân sidebar: User profile & Đăng xuất -->
+      <div class="p-4 border-t border-white/10 flex items-center justify-between bg-black/10">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div id="user-avatar-circle" class="w-9 h-9 rounded-full bg-white/20 border border-white/40 flex items-center justify-center shrink-0">
+            <i data-lucide="user" class="w-5 h-5 text-white"></i>
+          </div>
+          <div class="truncate">
+            <p id="current-user-name" class="font-bold text-sm text-white truncate">Nguyễn Văn A</p>
+            <p id="current-user-role" class="text-xs text-white/70">Tân sinh viên K52</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-1">
+          <button onclick="handleLogout()" title="Đăng xuất" class="p-2 rounded-lg text-white/80 hover:text-rose-200 hover:bg-rose-500/20 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- KHU VỰC NỘI DUNG CHÍNH (MAIN VIEWPORT CỦA LAPTOP & MOBILE) -->
+    <main class="flex-1 h-full overflow-hidden relative flex flex-col pb-16 lg:pb-0">
+
+      <!-- ============================================== -->
+      <!-- TAB 1: TRANG CHỦ (HOME SCREEN - Hình 2)        -->
+      <!-- ============================================== -->
+      <section id="view-home" class="view-panel h-full w-full ueh-campus-bg flex flex-col justify-center items-center px-4 sm:px-8 relative overflow-y-auto">
+        <div class="w-full max-w-3xl xl:max-w-4xl mx-auto flex flex-col items-center text-center relative z-10 py-8 lg:py-12">
+          
+          <div class="flex items-center justify-center gap-2.5 sm:gap-3 mb-4 sm:mb-6">
+            <span class="text-3xl sm:text-5xl font-black text-[#0B4A53]">UEH</span>
+            <svg class="w-10 h-10 sm:w-14 sm:h-14 text-[#00A3B4]" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="14" r="5" fill="#F27038" />
+              <path d="M7 32C12 25 18 24 23 27C23 27 23 38 23 40C16 38 11 39 7 42V32Z" fill="#00A8B5" />
+              <path d="M41 32C36 25 30 24 25 27C25 27 25 38 25 40C32 38 37 39 41 42V32Z" fill="#00A8B5" />
+            </svg>
+            <span class="text-3xl sm:text-5xl font-bold text-[#00A3B4]">StudyBuddy</span>
+          </div>
+
+          <h2 class="text-lg sm:text-2xl font-bold text-[#1B575F] mb-1.5 sm:mb-2 tracking-tight">
+            Hỏi gì cũng có - Tìm gì cũng thấy
+          </h2>
+          <p class="text-xs sm:text-base text-[#38767E] max-w-lg mb-6 sm:mb-8 font-medium px-4">
+            Tôi là StudyBuddy, trợ lý ảo UEH. Hãy đặt câu hỏi của bạn!
+          </p>
+
+          <!-- Thanh tìm kiếm chuẩn hình 2 -->
+          <div class="w-full max-w-2xl bg-white/95 backdrop-blur rounded-2xl shadow-[0_10px_35px_rgba(27,87,95,0.12)] p-2 sm:p-2.5 flex items-center gap-2 sm:gap-3 border border-white">
+            <button onclick="openAddCalendarModal(null, 'task')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EDF6F8] text-[#2F6F75] hover:bg-[#DDEEF0] flex items-center justify-center transition shrink-0" title="Thêm việc nhanh">
+              <i data-lucide="plus" class="w-4 h-4 sm:w-5 sm:h-5 font-bold"></i>
+            </button>
             
-            function renderPosts(category) {
-                postListContainer.innerHTML = ''; // Clear existing posts
-                
-                const postsToRender = mockPosts[category] || [];
+            <input type="text" id="home-search-input" onkeydown="if(event.key==='Enter') triggerHomeChat()"
+              placeholder="Bạn muốn hỏi gì mình cũng sẽ giải đáp"
+              class="w-full bg-transparent text-xs sm:text-base text-slate-700 placeholder-[#799FA4] focus:outline-none">
 
-                if (postsToRender.length === 0) {
-                    postListContainer.innerHTML = `<div class="p-4 text-center text-gray-400">Chưa có bài viết nào trong chuyên mục này.</div>`;
-                    return;
-                }
-                
-                postsToRender.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post-item flex justify-between items-center p-3 cursor-pointer transition-colors duration-200';
-                    
-                    postElement.innerHTML = `
-                        <div>
-                            <h4 class="text-xl text-white hover:text-highlight">${post.title}</h4>
-                            <p class="text-sm text-gray-400">bởi <span class="text-accent">${post.author}</span></p>
-                        </div>
-                        <div class="text-right text-sm">
-                            <p>Trả lời: ${post.replies}</p>
-                            <p>Lượt xem: ${post.views}</p>
-                        </div>
-                    `;
-                    postListContainer.appendChild(postElement);
-                });
+            <button onclick="triggerHomeChat()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#2F6F75] text-white hover:bg-[#255A5F] flex items-center justify-center transition shrink-0 shadow-md">
+              <i data-lucide="send" class="w-4 h-4 -mr-0.5"></i>
+            </button>
+          </div>
+
+          <!-- Các chủ đề thịnh hành -->
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-5 sm:mt-6 px-2">
+            <span class="text-[11px] sm:text-xs text-[#396F75] font-semibold">Chủ đề thịnh hành:</span>
+            <button onclick="directAsk('Học phí Khóa 52 UEH là bao nhiêu?')" class="text-[11px] sm:text-xs bg-white/90 hover:bg-white text-[#205A61] px-3 py-1.5 rounded-full border border-teal-100 shadow-sm transition">
+              🎓 Học phí K52
+            </button>
+            <button onclick="directAsk('5 tiêu chí chấm Điểm rèn luyện ĐRL UEH')" class="text-[11px] sm:text-xs bg-white/90 hover:bg-white text-[#205A61] px-3 py-1.5 rounded-full border border-teal-100 shadow-sm transition">
+              🌟 Điểm rèn luyện (ĐRL)
+            </button>
+            <button onclick="directAsk('Điều kiện xét học bổng khuyến khích học tập UEH')" class="text-[11px] sm:text-xs bg-white/90 hover:bg-white text-[#205A61] px-3 py-1.5 rounded-full border border-teal-100 shadow-sm transition">
+              📚 Học bổng KKHT
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 2: CHAT VỚI STUDYBUDDY (Hình 3)           -->
+      <!-- ============================================== -->
+      <section id="view-chat" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] hidden">
+        <div class="mb-3 sm:mb-4 flex items-center justify-between">
+          <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B]">Chat với StudyBuddy</h1>
+          <button onclick="resetChatHistory()" class="text-xs font-semibold text-[#2F6F75] hover:text-[#18444A] bg-white px-3 py-1.5 rounded-xl border border-teal-100 shadow-xs transition">
+            Làm mới hội thoại
+          </button>
+        </div>
+
+        <div class="flex-1 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-6 flex flex-col justify-between overflow-hidden relative">
+          
+          <!-- Hộp thoại cuộn tin nhắn -->
+          <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-4 sm:space-y-5 pr-1 sm:pr-2">
+            <!-- Tin nhắn chào ban đầu từ StudyBuddy -->
+            <div class="flex items-start gap-3 max-w-3xl">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#112338] border-2 border-[#1E90FF] flex items-center justify-center shrink-0 shadow-md relative">
+                <div class="w-5 h-2.5 sm:w-6 sm:h-3 bg-amber-400 rounded-full flex items-center justify-around px-0.5">
+                  <div class="w-1 h-1 bg-black rounded-full"></div>
+                  <div class="w-1 h-1 bg-black rounded-full"></div>
+                </div>
+                <div class="absolute -left-1 top-2.5 sm:top-3 w-1.5 sm:w-2 h-4 sm:h-5 bg-[#1E90FF] rounded-xs"></div>
+                <div class="absolute -right-1 top-2.5 sm:top-3 w-1.5 sm:w-2 h-4 sm:h-5 bg-[#1E90FF] rounded-xs"></div>
+              </div>
+              <div class="bg-[#EEF7F8] border border-[#DCEDF0] px-4 py-3 sm:px-5 sm:py-4 rounded-2xl sm:rounded-3xl rounded-tl-none text-[#23585F] text-xs sm:text-[14px] font-medium leading-relaxed shadow-xs">
+                Buddy chào bạn, bạn muốn biết thông tin gì về UEH thế?
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div id="chat-typing-indicator" class="hidden items-center gap-2.5 py-2 px-1 text-xs text-[#2F6F75] font-semibold animate-pulse">
+            <div class="w-6 h-6 rounded-full bg-[#112338] border border-[#1E90FF] flex items-center justify-center shrink-0">
+              <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping"></span>
+            </div>
+            <span>Buddy đang soạn tin...</span>
+          </div>
+
+          <!-- Gợi ý nhanh & Ô nhập chat -->
+          <div class="pt-3 border-t border-slate-100 space-y-2.5 sm:space-y-3">
+            <div class="flex flex-wrap gap-2 overflow-x-auto pb-1 max-w-full">
+              <button onclick="handleQuickChipClick('Điều kiện xét học bổng?')" class="bg-[#E4F2F4] hover:bg-[#D5EBF0] text-[#1E575E] text-xs font-semibold px-3 py-1.5 rounded-full transition shrink-0">
+                Điều kiện xét học bổng?
+              </button>
+              <button onclick="handleQuickChipClick('Học phí Khóa 52 chương trình Chuẩn')" class="bg-[#E4F2F4] hover:bg-[#D5EBF0] text-[#1E575E] text-xs font-semibold px-3 py-1.5 rounded-full transition shrink-0">
+                Học phí K52?
+              </button>
+              <button onclick="handleQuickChipClick('Cách tính điểm rèn luyện ĐRL UEH')" class="bg-[#E4F2F4] hover:bg-[#D5EBF0] text-[#1E575E] text-xs font-semibold px-3 py-1.5 rounded-full transition shrink-0">
+                Điểm rèn luyện?
+              </button>
+              <button onclick="handleQuickChipClick('Chuẩn tiếng Anh đầu ra UEH?')" class="bg-[#E4F2F4] hover:bg-[#D5EBF0] text-[#1E575E] text-xs font-semibold px-3 py-1.5 rounded-full transition shrink-0">
+                Chuẩn tiếng Anh?
+              </button>
+            </div>
+
+            <div class="bg-[#EDF6F7] rounded-2xl p-1.5 sm:p-2 px-3 flex items-center gap-2 sm:gap-3 border border-[#D5E7EA]">
+              <button onclick="showNotificationToast('Bạn có thể đính kèm câu hỏi hoặc file tài liệu học tập.')" class="text-[#2F6F75] hover:text-[#18484E] p-1.5 rounded-lg hover:bg-white/50 transition" title="Tải đính kèm">
+                <i data-lucide="plus" class="w-4 h-4 sm:w-5 sm:h-5 font-bold"></i>
+              </button>
+              <input type="text" id="chat-input" onkeydown="if(event.key==='Enter') sendChatMessage()"
+                placeholder="Bạn muốn hỏi gì mình cũng sẽ giải đáp"
+                class="w-full bg-transparent text-xs sm:text-base text-slate-800 placeholder-[#6D989E] focus:outline-none">
+              <button id="chat-send-btn" onclick="sendChatMessage()" class="p-2 sm:p-2.5 bg-[#2F6F75] hover:bg-[#23585F] text-white rounded-xl transition shadow-xs">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 3: LỊCH CÁ NHÂN (Hình 4)                   -->
+      <!-- ============================================== -->
+      <section id="view-calendar" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] overflow-y-auto hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B]">Lịch cá nhân</h1>
+            <p id="realtime-today-text" class="text-xs text-slate-500 font-medium mt-0.5">Thứ Ba, 13/10/2026</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="goToToday()" class="px-3 py-2 rounded-xl text-xs font-bold text-[#23575D] bg-white border border-teal-100 hover:bg-[#E5F3F5] transition shadow-xs">
+              Hôm nay
+            </button>
+            <button onclick="openAddCalendarModal(null, 'event')" class="flex items-center gap-1.5 bg-[#2F6F75] hover:bg-[#23585F] text-white text-xs sm:text-sm font-bold px-3.5 py-2 sm:py-2.5 rounded-xl shadow-xs transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Thêm sự kiện</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-6 max-w-7xl">
+          <!-- Bố cục lưới Laptop: Lịch to (7 cột), Thẻ sự kiện hôm nay lệch phải (5 cột); Mobile: Tự động xếp chồng dọc -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+            
+            <!-- Box 1: Lưới lịch theo tháng (lg:col-span-7) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-slate-100 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-5">
+                  <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="changeCalendarMonth(-1)" class="p-1.5 rounded-xl text-slate-500 hover:text-[#23575D] hover:bg-[#EDF6F8] transition">
+                      <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <h3 id="calendar-month-year-label" class="text-base sm:text-xl font-bold text-[#1D545B]">Tháng 10, 2026</h3>
+                    <button onclick="changeCalendarMonth(1)" class="p-1.5 rounded-xl text-slate-500 hover:text-[#23575D] hover:bg-[#EDF6F8] transition">
+                      <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                  </div>
+                  <span class="text-[11px] sm:text-xs text-slate-400 font-medium">Bấm vào ngày để xem</span>
+                </div>
+
+                <!-- Tiêu đề ngày thứ trong tuần T2 - CN -->
+                <div class="grid grid-cols-7 gap-1 text-center text-[11px] sm:text-xs font-bold text-[#1D545B] mb-2 py-1 border-b border-slate-100">
+                  <span>T2</span>
+                  <span>T3</span>
+                  <span>T4</span>
+                  <span>T5</span>
+                  <span>T6</span>
+                  <span>T7</span>
+                  <span>CN</span>
+                </div>
+
+                <!-- Lưới hiển thị các ngày động -->
+                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-xs sm:text-sm font-semibold">
+                  <!-- Đổ qua JS renderCalendar() -->
+                </div>
+              </div>
+
+              <div class="pt-4 mt-5 border-t border-slate-100 text-xs text-[#2F6F75] flex items-center justify-between">
+                <span>Học kỳ chính quy UEH 2026</span>
+                <button onclick="showNotificationToast('Đã đồng bộ thành công với Google Calendar sinh viên!')" class="font-bold hover:underline text-[11px] sm:text-xs">
+                  Đồng bộ Google / Apple Calendar
+                </button>
+              </div>
+            </div>
+
+            <!-- Box 2: Chi tiết ngày được chọn LỆCH PHẢI (lg:col-span-5) & Chữ nhỏ gọn bằng chat -->
+            <div class="lg:col-span-5 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
+                  <div>
+                    <h3 id="selected-date-heading" class="text-sm sm:text-base font-bold text-[#1D545B]">Hôm nay</h3>
+                    <p class="text-xs text-slate-400">Lịch trình & việc cần làm</p>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button onclick="filterSelectedDateItems('all')" id="cal-filter-all" class="text-[11px] px-2.5 py-1 rounded-lg font-bold bg-[#38767E] text-white transition">Tất cả</button>
+                    <button onclick="filterSelectedDateItems('event')" id="cal-filter-event" class="text-[11px] px-2.5 py-1 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Sự kiện</button>
+                    <button onclick="filterSelectedDateItems('task')" id="cal-filter-task" class="text-[11px] px-2.5 py-1 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Việc làm</button>
+                  </div>
+                </div>
+
+                <!-- Danh sách sự kiện & việc cần làm của ngày -->
+                <div id="selected-date-items-container" class="space-y-3 max-h-[300px] lg:max-h-[360px] overflow-y-auto pr-1">
+                  <!-- Đổ qua JS renderSelectedDateSchedule() -->
+                </div>
+              </div>
+
+              <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+                <span id="selected-date-count" class="text-xs text-slate-400 font-semibold">3 mục</span>
+                <button onclick="openAddCalendarModal(AppState.calendarSelectedDate, 'event')" class="text-xs font-bold text-[#2F6F75] hover:text-[#1C4D53] flex items-center gap-1">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm vào ngày này
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Box 3: Sự kiện sắp tới -->
+          <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm sm:text-base font-bold text-[#23575D]">Sự kiện sắp tới</h3>
+              <button onclick="showNotificationToast('Hiển thị toàn bộ lịch học và sự kiện học kỳ UEH.')" class="text-xs font-bold text-[#166068] hover:underline flex items-center gap-1">
+                Xem tất cả <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <div id="upcoming-events-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+              <!-- Đổ qua JS renderUpcomingEvents() -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 4: THÔNG TIN HỌC TẬP (Hình 5)             -->
+      <!-- ============================================== -->
+      <section id="view-study-info" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] overflow-y-auto hidden">
+        <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B] mb-3 sm:mb-4">Thông tin học tập</h1>
+
+        <!-- Thanh tìm kiếm dài bo tròn rộng -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-2.5 sm:p-3 px-4 sm:px-5 mb-3 sm:mb-4 flex items-center gap-3">
+          <i data-lucide="search" class="w-5 h-5 text-slate-400 shrink-0"></i>
+          <input type="text" id="study-search-input" value="" oninput="filterStudyItems()"
+            placeholder="Tìm kiếm thông tin, quy chế, biểu mẫu, học vụ..."
+            class="w-full text-slate-800 placeholder-slate-400 font-medium focus:outline-none text-sm sm:text-base">
+          <button id="study-clear-search" onclick="clearStudySearch()" class="hidden p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition" title="Xóa tìm kiếm">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Khối chip từ khóa gợi ý -->
+        <div id="study-suggestions-container" class="mb-4 sm:mb-6 flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-bold text-[#23585F] flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#F27038]"></i> Gợi ý:
+          </span>
+          <button onclick="quickFillStudySearch('Điểm rèn luyện')" class="text-xs bg-white hover:bg-[#E5F4F6] text-[#20585F] font-semibold px-3 py-1 rounded-full border border-teal-100 transition shadow-2xs">
+            🌟 Điểm rèn luyện (ĐRL)
+          </button>
+          <button onclick="quickFillStudySearch('Học phí Khóa 52')" class="text-xs bg-white hover:bg-[#E5F4F6] text-[#20585F] font-semibold px-3 py-1 rounded-full border border-teal-100 transition shadow-2xs">
+            Học phí Khóa 52
+          </button>
+          <button onclick="quickFillStudySearch('Đăng ký tín chỉ')" class="text-xs bg-white hover:bg-[#E5F4F6] text-[#20585F] font-semibold px-3 py-1 rounded-full border border-teal-100 transition shadow-2xs">
+            Đăng ký tín chỉ
+          </button>
+          <button onclick="quickFillStudySearch('Chuẩn Ngoại ngữ')" class="text-xs bg-white hover:bg-[#E5F4F6] text-[#20585F] font-semibold px-3 py-1 rounded-full border border-teal-100 transition shadow-2xs">
+            Chuẩn Ngoại ngữ
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-sm border border-slate-100 flex-1 flex flex-col">
+          <!-- Các tabs phân loại -->
+          <div class="flex flex-wrap gap-2 sm:gap-3 mb-6">
+            <button onclick="setStudyCategory('all')" id="btn-study-cat-all" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs">
+              Tất cả
+            </button>
+            <button onclick="setStudyCategory('hocvu')" id="btn-study-cat-hocvu" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#E9F3F5] text-[#22575E] hover:bg-[#D8ECF0] transition">
+              Học vụ
+            </button>
+            <button onclick="setStudyCategory('daotao')" id="btn-study-cat-daotao" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#E9F3F5] text-[#22575E] hover:bg-[#D8ECF0] transition">
+              Đào tạo
+            </button>
+            <button onclick="setStudyCategory('bieumau')" id="btn-study-cat-bieumau" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#E9F3F5] text-[#22575E] hover:bg-[#D8ECF0] transition">
+              Biểu mẫu
+            </button>
+            <button onclick="setStudyCategory('khac')" id="btn-study-cat-khac" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#E9F3F5] text-[#22575E] hover:bg-[#D8ECF0] transition">
+              Khác
+            </button>
+          </div>
+
+          <!-- Bố cục Laptop: 2/3 danh sách bên trái, 1/3 bộ lọc bên phải. Mobile: Bộ lọc xuống dưới -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div class="lg:col-span-2 space-y-4">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 id="study-results-title" class="text-sm sm:text-base font-bold text-[#1D545B] flex items-center gap-1.5">
+                  <i data-lucide="sparkles" class="w-4 h-4 text-[#2F6F75]"></i>
+                  <span>Gợi ý tìm kiếm mặc định</span>
+                </h3>
+                <span id="study-results-counter" class="text-xs text-slate-400 font-medium">Dành cho sinh viên UEH</span>
+              </div>
+              <div id="study-items-list" class="space-y-3">
+                <!-- Đổ danh sách tài liệu qua JS -->
+              </div>
+            </div>
+
+            <!-- Card Sidebar 'Lọc kết quả' -->
+            <div class="bg-[#CBE8EC]/60 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-[#1A4C52] space-y-5">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm sm:text-base font-bold text-[#14484E]">Lọc kết quả</h3>
+                <button onclick="resetStudyFilters()" class="text-xs font-semibold text-[#18535A] hover:underline">
+                  Đặt lại
+                </button>
+              </div>
+
+              <!-- Lọc theo thời gian -->
+              <div class="space-y-2">
+                <p class="text-xs sm:text-sm font-bold text-[#1A535A]">Theo thời gian</p>
+                <div class="space-y-1.5 text-xs font-medium">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="study-filter-time" value="moinhat" checked onchange="applyStudyFilters()" class="text-[#2F6F75] focus:ring-0"> Mới nhất (30 ngày)
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="study-filter-time" value="3thang" onchange="applyStudyFilters()" class="text-[#2F6F75] focus:ring-0"> 3 tháng gần nhất
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="study-filter-time" value="6thang" onchange="applyStudyFilters()" class="text-[#2F6F75] focus:ring-0"> 6 tháng gần nhất
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="study-filter-time" value="tatca" onchange="applyStudyFilters()" class="text-[#2F6F75] focus:ring-0"> Tất cả
+                  </label>
+                </div>
+              </div>
+
+              <!-- Lọc theo nguồn -->
+              <div class="space-y-2">
+                <p class="text-xs sm:text-sm font-bold text-[#1A535A]">Theo nguồn ban hành</p>
+                <div class="space-y-1.5 text-xs font-medium">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="study-src-congthongtin" checked onchange="applyStudyFilters()" class="rounded text-[#2F6F75] focus:ring-0"> Cổng thông tin UEH
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="study-src-portal" checked onchange="applyStudyFilters()" class="rounded text-[#2F6F75] focus:ring-0"> Portal UEH
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="study-src-email" checked onchange="applyStudyFilters()" class="rounded text-[#2F6F75] focus:ring-0"> Email UEH
+                  </label>
+                </div>
+              </div>
+
+              <!-- Lọc theo loại -->
+              <div class="space-y-2">
+                <p class="text-xs sm:text-sm font-bold text-[#1A535A]">Theo loại văn bản</p>
+                <div class="space-y-1.5 text-xs font-medium">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="study-type-chinhthuc" checked onchange="applyStudyFilters()" class="rounded text-[#2F6F75] focus:ring-0"> Chính thức
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="study-type-khac" checked onchange="applyStudyFilters()" class="rounded text-[#2F6F75] focus:ring-0"> Khác
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 5: THÔNG BÁO (Hình 6)                     -->
+      <!-- ============================================== -->
+      <section id="view-notifications" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] overflow-y-auto hidden">
+        <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B] mb-4 sm:mb-6">Thông báo</h1>
+
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-sm border border-slate-100 flex-1">
+          <div class="flex flex-wrap gap-2 sm:gap-3 mb-6">
+            <button onclick="filterNotificationCategory('all')" id="btn-noti-all" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs">
+              Tất cả
+            </button>
+            <button onclick="filterNotificationCategory('hocvu')" id="btn-noti-hocvu" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">
+              Học vụ
+            </button>
+            <button onclick="filterNotificationCategory('hocbong')" id="btn-noti-hocbong" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">
+              Học bổng
+            </button>
+            <button onclick="filterNotificationCategory('sukien')" id="btn-noti-sukien" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">
+              Sự kiện
+            </button>
+            <button onclick="filterNotificationCategory('khac')" id="btn-noti-khac" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">
+              Khác
+            </button>
+          </div>
+
+          <div id="notifications-list" class="space-y-4 sm:space-y-6 divide-y divide-slate-100">
+            <!-- Đổ danh sách thông báo từ AppState.notifications -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 6: TO-DO LIST (Hình 7)                    -->
+      <!-- ============================================== -->
+      <section id="view-todo" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] overflow-y-auto hidden">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B]">To-Do List</h1>
+          <button onclick="openAddCalendarModal(null, 'task')" class="flex items-center gap-1.5 bg-[#2F6F75] hover:bg-[#23585F] text-white text-xs sm:text-sm font-semibold px-3.5 py-2 sm:py-2.5 rounded-xl shadow-xs transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Thêm công việc</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-sm border border-slate-100 flex-1 flex flex-col">
+          <div class="flex flex-wrap gap-2 sm:gap-3 mb-6">
+            <button onclick="setTodoCategory('all')" id="btn-todo-all" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs">Tất cả</button>
+            <button onclick="setTodoCategory('hocvu')" id="btn-todo-hocvu" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">Học vụ</button>
+            <button onclick="setTodoCategory('hocbong')" id="btn-todo-hocbong" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">Học bổng</button>
+            <button onclick="setTodoCategory('sukien')" id="btn-todo-sukien" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">Sự kiện</button>
+            <button onclick="setTodoCategory('khac')" id="btn-todo-khac" class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition">Khác</button>
+          </div>
+
+          <div class="space-y-6 sm:space-y-8">
+            <div>
+              <h3 id="todo-group-today-title" class="text-sm sm:text-base font-bold text-[#1D545B] mb-3">Hôm nay (2)</h3>
+              <div id="todo-today-container" class="space-y-3 divide-y divide-slate-100">
+                <!-- Đổ danh sách to-do hôm nay -->
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100">
+              <h3 id="todo-group-upcoming-title" class="text-sm sm:text-base font-bold text-[#1D545B] mb-3">Sắp tới (3)</h3>
+              <div id="todo-upcoming-container" class="space-y-3 divide-y divide-slate-100">
+                <!-- Đổ danh sách to-do sắp tới -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TAB 7: QUẢN TRỊ ADMIN (ADMIN PANEL)           -->
+      <!-- ============================================== -->
+      <section id="view-admin" class="view-panel h-full w-full p-3 sm:p-6 lg:p-8 flex flex-col bg-[#EEF5F6] overflow-y-auto hidden">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-[#1D545B] flex items-center gap-2">
+              <i data-lucide="shield-check" class="text-amber-500"></i>
+              Quản trị UEH StudyBuddy
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Đặc quyền cấp tài khoản: <span class="font-bold text-[#2F6F75]">admin</span></p>
+          </div>
+          <span class="bg-amber-100 text-amber-800 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
+            Quyền Administrator
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+              <p class="text-[11px] font-bold text-slate-400 uppercase">Tổng số sinh viên online</p>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-[#1D545B] mt-1" id="admin-online-students-count">1,428</p>
+            <div class="flex items-center gap-1 mt-1">
+              <span id="admin-growth-rate" class="text-[11px] text-emerald-600 font-semibold">↑ Tăng 12.0% hôm nay</span>
+              <span class="text-[10px] text-slate-400">(so với hôm qua)</span>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+              <p class="text-[11px] font-bold text-slate-400 uppercase">Câu hỏi AI giải đáp</p>
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-600"></i>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-[#1D545B] mt-1" id="admin-ai-questions-count">3,892</p>
+            <div class="flex items-center gap-1 mt-1">
+              <span id="admin-satisfaction-rate" class="text-[11px] text-teal-600 font-semibold">Độ hài lòng 98.4%</span>
+              <span id="admin-votes-summary" class="text-[10px] text-slate-400">(984/1000 lượt đánh giá)</span>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between">
+              <p class="text-[11px] font-bold text-slate-400 uppercase">Thông báo phát hành</p>
+              <i data-lucide="megaphone" class="w-3.5 h-3.5 text-blue-600"></i>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-[#1D545B] mt-1" id="admin-noti-count">5</p>
+            <span class="text-[11px] text-blue-600 font-semibold">Đến toàn bộ sinh viên UEH</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-slate-100">
+          <h3 class="text-base font-bold text-[#1D545B] mb-4 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-[#2F6F75]"></i>
+            Gửi thông báo cho toàn bộ người dùng UEH StudyBuddy
+          </h3>
+
+          <form onsubmit="handleAdminCreateNoti(event)" class="space-y-4 max-w-2xl">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Tiêu đề thông báo</label>
+              <input type="text" id="admin-noti-title" required placeholder="Nhập tiêu đề thông báo..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Chuyên mục</label>
+                <select id="admin-noti-cat" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+                  <option value="hocvu">Học vụ</option>
+                  <option value="hocbong">Học bổng</option>
+                  <option value="sukien">Sự kiện</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Ngày thông báo</label>
+                <input type="text" id="admin-noti-date" value="13/10/2026" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Nội dung thông báo</label>
+              <textarea id="admin-noti-content" rows="3" required placeholder="Nhập chi tiết nội dung thông báo..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]"></textarea>
+            </div>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#2F6F75] hover:bg-[#23555A] text-white font-bold text-sm shadow transition">
+              Gửi thông báo
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- BOTTOM NAVIGATION BAR (Dành riêng cho màn hình Mobile < lg) -->
+      <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-center justify-around z-40 shadow-lg px-2">
+        <button onclick="navigateTo('home')" id="mobile-nav-home" class="flex flex-col items-center justify-center text-[#2F6F75] w-12 py-1">
+          <i data-lucide="home" class="w-5 h-5"></i>
+          <span class="text-[10px] font-bold mt-0.5">Trang chủ</span>
+        </button>
+        <button onclick="navigateTo('chat')" id="mobile-nav-chat" class="flex flex-col items-center justify-center text-slate-400 w-12 py-1">
+          <i data-lucide="message-square" class="w-5 h-5"></i>
+          <span class="text-[10px] font-medium mt-0.5">Chat</span>
+        </button>
+        <button onclick="navigateTo('calendar')" id="mobile-nav-calendar" class="flex flex-col items-center justify-center text-slate-400 w-12 py-1">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+          <span class="text-[10px] font-medium mt-0.5">Lịch</span>
+        </button>
+        <button onclick="navigateTo('study-info')" id="mobile-nav-study-info" class="flex flex-col items-center justify-center text-slate-400 w-12 py-1">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+          <span class="text-[10px] font-medium mt-0.5">Học tập</span>
+        </button>
+        <button onclick="navigateTo('notifications')" id="mobile-nav-notifications" class="flex flex-col items-center justify-center text-slate-400 w-12 py-1 relative">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span class="text-[10px] font-medium mt-0.5">Tin báo</span>
+          <span class="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
+        </button>
+        <button onclick="navigateTo('todo')" id="mobile-nav-todo" class="flex flex-col items-center justify-center text-slate-400 w-12 py-1">
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+          <span class="text-[10px] font-medium mt-0.5">To-Do</span>
+        </button>
+      </nav>
+
+    </main>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: TRANG CHI TIẾT THÔNG TIN HỌC TẬP        -->
+  <!-- ============================================== -->
+  <div id="modal-study-detail" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl relative border border-slate-100 overflow-hidden animate-fade-in">
+      
+      <!-- Header điều hướng Breadcrumb -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FCFC]">
+        <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 overflow-hidden">
+          <button onclick="closeModal('modal-study-detail')" class="hover:text-[#23585F] flex items-center gap-1 shrink-0">
+            <i data-lucide="book-open" class="w-4 h-4"></i> Thông tin học tập
+          </button>
+          <span>/</span>
+          <span id="study-detail-breadcrumb" class="text-[#1D545B] font-bold truncate">Học vụ</span>
+        </div>
+        <button onclick="closeModal('modal-study-detail')" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Nội dung cuộn chính -->
+      <div id="study-detail-content-area" class="p-5 sm:p-8 overflow-y-auto space-y-5 flex-1">
+        <!-- Đổ giao diện động qua JS -->
+      </div>
+
+      <!-- Footer trang chi tiết -->
+      <div class="p-3.5 sm:p-4 px-5 border-t border-slate-100 bg-[#F8FCFC] flex items-center justify-between text-xs text-slate-500">
+        <span class="hidden sm:flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-teal-600"></i> Cổng thông tin đào tạo UEH chính thống
+        </span>
+        <div class="flex items-center gap-2 ml-auto sm:ml-0">
+          <button onclick="printOrShareStudyDoc()" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-700 font-semibold transition flex items-center gap-1 text-xs">
+            <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Chia sẻ
+          </button>
+          <button onclick="closeModal('modal-study-detail')" class="px-4 py-1.5 rounded-lg bg-[#2F6F75] hover:bg-[#23585F] text-white font-bold transition text-xs">
+            Đóng
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: THÊM SỰ KIỆN / VIỆC CẦN LÀM (CALENDAR)  -->
+  <!-- ============================================== -->
+  <div id="modal-add-calendar" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <button onclick="closeModal('modal-add-calendar')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Tab chuyển đổi Sự kiện / Việc cần làm -->
+      <div class="grid grid-cols-2 gap-2 bg-[#EDF6F8] p-1.5 rounded-2xl mb-4 sm:mb-5">
+        <button type="button" id="tab-cal-type-event" onclick="switchCalendarModalType('event')" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white shadow-xs transition">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          Sự kiện (Event)
+        </button>
+        <button type="button" id="tab-cal-type-task" onclick="switchCalendarModalType('task')" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-semibold text-xs sm:text-sm text-slate-600 hover:text-[#1A4F56] transition">
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          Việc cần làm (Task)
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveCalendarItem(event)" class="space-y-4">
+        <!-- Tiêu đề -->
+        <div>
+          <label id="label-cal-title" class="block text-xs font-bold text-slate-600 mb-1">Tiêu đề sự kiện *</label>
+          <input type="text" id="cal-input-title" required placeholder="VD: Triết học Mác - Lênin / Họp nhóm UEH..."
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+        </div>
+
+        <!-- Ngày áp dụng -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Ngày áp dụng</label>
+          <input type="date" id="cal-input-date" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+        </div>
+
+        <!-- Nhãn màu đa dạng cho Sự kiện -->
+        <div id="cal-color-picker-wrap">
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-600">Màu sắc đánh dấu sự kiện</label>
+            <div id="custom-color-badge-display" class="hidden items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded-full text-[10px] font-semibold text-slate-600">
+              <span id="custom-color-badge-preview" class="w-2.5 h-2.5 rounded-full inline-block"></span>
+              <span id="custom-color-hex-val">#000000</span>
+              <button type="button" onclick="resetToPresetColor()" class="text-slate-400 hover:text-rose-500 ml-1">✕</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-5 sm:grid-cols-9 gap-2 pt-1 items-center">
+            <!-- Vàng Gold -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#E5A93C" checked onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E5A93C] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#E5A93C] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Vàng</span>
+            </label>
+            <!-- Xanh Blue UEH -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#1D74E8" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#1D74E8] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#1D74E8] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Lam</span>
+            </label>
+            <!-- Xanh lá Emerald -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#10B981" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#10B981] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#10B981] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Lục</span>
+            </label>
+            <!-- Tím Violet -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#8B5CF6" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#8B5CF6] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#8B5CF6] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Tím</span>
+            </label>
+            <!-- Đỏ Cam Coral -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#F97316" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#F97316] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#F97316] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Cam</span>
+            </label>
+            <!-- Hồng Rose -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#EC4899" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#EC4899] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#EC4899] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Hồng</span>
+            </label>
+            <!-- Xanh Teal Ngọc -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#0D9488" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#0D9488] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#0D9488] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Ngọc</span>
+            </label>
+            <!-- Chàm Indigo -->
+            <label class="cursor-pointer flex flex-col items-center gap-1">
+              <input type="radio" name="cal-color" value="#4F46E5" onchange="syncColorInput(this.value)" class="sr-only peer">
+              <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#4F46E5] inline-block peer-checked:ring-3 peer-checked:ring-offset-2 peer-checked:ring-[#4F46E5] transition"></span>
+              <span class="text-[10px] text-slate-500 font-medium">Chàm</span>
+            </label>
+            <!-- Tự pha màu -->
+            <div class="flex flex-col items-center gap-1">
+              <div class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden border-2 border-dashed border-teal-500 flex items-center justify-center hover:scale-105 transition shadow-xs cursor-pointer bg-slate-100" title="Bảng màu tự chọn">
+                <input type="color" id="cal-custom-hex-picker" value="#0284C7" onchange="applyCustomHexColor(this.value)" class="opacity-0 absolute inset-0 cursor-pointer w-full h-full scale-150">
+                <i data-lucide="pipette" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-700 pointer-events-none"></i>
+              </div>
+              <span class="text-[10px] text-teal-700 font-bold">Tự pha</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Các trường cho EVENT -->
+        <div id="cal-fields-event" class="space-y-3">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-600 py-0.5">
+            <span>Cả ngày</span>
+            <input type="checkbox" id="cal-all-day" onchange="toggleAllDayEvent(this.checked)" class="w-4 h-4 rounded text-[#2F6F75] focus:ring-0 cursor-pointer">
+          </div>
+          <div id="cal-time-range-wrap" class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Giờ bắt đầu</label>
+              <input type="time" id="cal-time-start" value="07:10" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Giờ kết thúc</label>
+              <input type="time" id="cal-time-end" value="11:30" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Địa điểm / Phòng học UEH</label>
+            <input type="text" id="cal-input-location" placeholder="VD: B2.207, Cơ sở B hoặc Online MS Teams" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+          </div>
+        </div>
+
+        <!-- Các trường cho TASK -->
+        <div id="cal-fields-task" class="space-y-3 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Thời gian nhắc nhở</label>
+              <input type="time" id="cal-task-time" value="09:00" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Phân loại nhãn việc *</label>
+              <select id="cal-task-category" onchange="handleTaskCategoryChange(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75] font-semibold text-[#1A4F56]">
+                <option value="hoctap">📚 Học tập (Xanh lam)</option>
+                <option value="giaitri">🎮 Giải trí (Tím mộng mơ)</option>
+                <option value="giadinh">🏡 Gia đình (Cam ấm áp)</option>
+                <option value="custom">✏️ Tự điền nhãn khác...</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="cal-custom-task-wrap" class="hidden p-3 rounded-2xl bg-[#EEF8FA] border border-[#CDE5E9] space-y-2.5">
+            <div>
+              <label class="block text-xs font-bold text-[#1F545B] mb-1">Nhập tên nhãn tự chọn</label>
+              <input type="text" id="cal-task-custom-label" placeholder="VD: Rèn luyện, Sức khỏe, Dự án..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:border-[#2F6F75]">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-[#1F545B] mb-1">Chọn màu cho nhãn tự tạo</label>
+              <div class="flex items-center gap-2 pt-0.5">
+                <label class="cursor-pointer"><input type="radio" name="custom-label-color" value="#EC4899" checked class="sr-only peer"><span class="w-6 h-6 rounded-full bg-[#EC4899] inline-block peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#EC4899]"></span></label>
+                <label class="cursor-pointer"><input type="radio" name="custom-label-color" value="#06B6D4" class="sr-only peer"><span class="w-6 h-6 rounded-full bg-[#06B6D4] inline-block peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#06B6D4]"></span></label>
+                <label class="cursor-pointer"><input type="radio" name="custom-label-color" value="#EAB308" class="sr-only peer"><span class="w-6 h-6 rounded-full bg-[#EAB308] inline-block peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#EAB308]"></span></label>
+                <label class="cursor-pointer"><input type="radio" name="custom-label-color" value="#10B981" class="sr-only peer"><span class="w-6 h-6 rounded-full bg-[#10B981] inline-block peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#10B981]"></span></label>
+                <label class="cursor-pointer"><input type="radio" name="custom-label-color" value="#6366F1" class="sr-only peer"><span class="w-6 h-6 rounded-full bg-[#6366F1] inline-block peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#6366F1]"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <label class="flex items-center gap-2 text-xs font-semibold text-[#1F545B] cursor-pointer pt-0.5">
+            <input type="checkbox" id="cal-sync-todo" checked class="w-4 h-4 rounded text-[#2F6F75] focus:ring-0">
+            Tự động đồng bộ vào trang To-Do List
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Ghi chú thêm</label>
+          <textarea id="cal-input-desc" rows="2" placeholder="Ghi chú thêm chi tiết nhiệm vụ hoặc tài liệu cần mang..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#2F6F75]"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-add-calendar')" class="px-4 py-2 rounded-xl text-slate-500 font-bold text-xs sm:text-sm hover:bg-slate-100">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-[#2F6F75] hover:bg-[#23585F] text-white font-bold text-xs sm:text-sm shadow">Lưu vào lịch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Xem Chi Tiết Thông Báo -->
+  <div id="modal-noti-detail" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative">
+      <button onclick="closeModal('modal-noti-detail')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div id="modal-noti-icon" class="w-12 h-12 rounded-full mb-4 flex items-center justify-center"></div>
+      <h3 id="modal-noti-title" class="text-base sm:text-lg font-bold text-[#1A4F56] mb-1"></h3>
+      <p id="modal-noti-meta" class="text-xs text-slate-400 font-medium mb-3"></p>
+      <div id="modal-noti-body" class="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-2 border-t border-slate-100 pt-3"></div>
+      <div class="mt-5 flex justify-end">
+        <button onclick="closeModal('modal-noti-detail')" class="px-4 py-2 rounded-xl bg-[#2F6F75] text-white font-bold text-xs sm:text-sm">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Message -->
+  <div id="app-toast" class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-[#194C53] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold pointer-events-none max-w-[90vw]">
+    <i data-lucide="info" class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300 shrink-0"></i>
+    <span id="toast-text">Thông báo hệ thống</span>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- JAVASCRIPT LOGIC TRUNG TÂM                     -->
+  <!-- ============================================== -->
+  <script>
+    const nowReal = new Date();
+    const realYear = nowReal.getFullYear();
+    const realMonth = nowReal.getMonth();
+    const realDate = nowReal.getDate();
+    const todayIsoString = `${realYear}-${String(realMonth + 1).padStart(2, '0')}-${String(realDate).padStart(2, '0')}`;
+
+    // Bản đồ phân loại nhãn việc cần làm
+    const TASK_CATEGORY_MAP = {
+      hoctap: { name: 'Học tập', color: '#0284C7', bg: '#E0F2FE', text: '#0369A1' },
+      giaitri: { name: 'Giải trí', color: '#8B5CF6', bg: '#EDE9FE', text: '#6D28D9' },
+      giadinh: { name: 'Gia đình', color: '#F97316', bg: '#FFEDD5', text: '#C2410C' },
+      custom: { name: 'Tự chọn', color: '#EC4899', bg: '#FCE7F3', text: '#BE185D' }
+    };
+
+    let activeCustomEventColor = null;
+    let activeCustomTaskColor = null;
+
+    function applyCustomHexColor(hex) {
+      activeCustomEventColor = hex;
+      document.querySelectorAll('input[name="cal-color"]').forEach(r => r.checked = false);
+
+      const badgeDisplay = document.getElementById('custom-color-badge-display');
+      const badgePreview = document.getElementById('custom-color-badge-preview');
+      const hexVal = document.getElementById('custom-color-hex-val');
+
+      if (badgeDisplay && badgePreview && hexVal) {
+        badgeDisplay.classList.remove('hidden');
+        badgeDisplay.classList.add('flex');
+        badgePreview.style.backgroundColor = hex;
+        hexVal.innerText = hex;
+      }
+    }
+    window.applyCustomHexColor = applyCustomHexColor;
+
+    function syncColorInput(hex) {
+      activeCustomEventColor = null;
+      const picker = document.getElementById('cal-custom-hex-picker');
+      if (picker) picker.value = hex;
+      const badgeDisplay = document.getElementById('custom-color-badge-display');
+      if (badgeDisplay) {
+        badgeDisplay.classList.add('hidden');
+        badgeDisplay.classList.remove('flex');
+      }
+    }
+    window.syncColorInput = syncColorInput;
+
+    function resetToPresetColor() {
+      activeCustomEventColor = null;
+      const firstRadio = document.querySelector('input[name="cal-color"]');
+      if (firstRadio) {
+        firstRadio.checked = true;
+        syncColorInput(firstRadio.value);
+      }
+    }
+    window.resetToPresetColor = resetToPresetColor;
+
+    const AppState = {
+      currentUser: null,
+      currentTab: 'home',
+      loginMode: 'password',
+      chatHistory: [],
+      
+      calendarCurrentYear: realYear,
+      calendarCurrentMonth: realMonth,
+      calendarSelectedDate: todayIsoString,
+      calendarFilter: 'all',
+      calendarModalType: 'event',
+
+      adminMetrics: {
+        yesterdayStudentBase: 1275,
+        baseActiveStudents: 1428,
+        loggedStudentAccounts: new Set(),
+        totalAiQuestionsAnswered: 3892,
+        satisfactionVotesPositive: 984,
+        satisfactionVotesTotal: 1000
+      },
+
+      calendarEvents: [
+        {
+          id: 'ev-1',
+          type: 'event',
+          title: 'Triết học Mác - Lênin',
+          date: todayIsoString,
+          startTime: '07:10',
+          endTime: '11:30',
+          location: 'B2.207 (Cơ sở Nguyễn Tri Phương)',
+          color: '#E5A93C',
+          desc: 'Buổi học chương 3 - Chủ nghĩa duy vật lịch sử'
+        },
+        {
+          id: 'ev-2',
+          type: 'event',
+          title: 'Sinh hoạt CLB UEH',
+          date: todayIsoString,
+          startTime: '14:00',
+          endTime: '16:00',
+          location: 'Sảnh cơ sở B',
+          color: '#1D74E8',
+          desc: 'Họp ban truyền thông chào đón tân sinh viên K52'
+        },
+        {
+          id: 'ev-3',
+          type: 'event',
+          title: 'Đi sự kiện HuReA',
+          date: todayIsoString,
+          startTime: '18:00',
+          endTime: '20:30',
+          location: 'Hội trường B1.302',
+          color: '#10B981',
+          desc: 'Talkshow Nhân sự thời đại số'
+        },
+        {
+          id: 'ev-4',
+          type: 'task',
+          title: 'Nộp bài tập xác suất thống kê',
+          date: todayIsoString,
+          startTime: '23:59',
+          completed: false,
+          category: 'hoctap',
+          color: '#0284C7',
+          desc: 'Nộp trực tuyến trên LMS UEH'
+        },
+        {
+          id: 'ev-5',
+          type: 'task',
+          title: 'Xem phim cuối tuần cùng bạn bè',
+          date: todayIsoString,
+          startTime: '20:45',
+          completed: false,
+          category: 'giaitri',
+          color: '#8B5CF6',
+          desc: 'CGV Hùng Vương Plaza'
+        }
+      ],
+
+      studyItems: [
+        { 
+          id: 1, 
+          title: 'Hệ thống Đánh giá Điểm rèn luyện (ĐRL) UEH', 
+          date: '12/10/2026', 
+          source: 'Phòng DSA & Đoàn - Hội UEH', 
+          sourceTag: 'portal',
+          docType: 'chinhthuc',
+          cat: 'hocvu', 
+          icon: 'award',
+          hasSubLevels: true,
+          subLevelsDescription: 'Quy chế đánh giá kết quả rèn luyện sinh viên theo Quy chế ĐRL mới nhất của Đại học UEH:',
+          subLevels: [
+            {
+              id: 'drl-khung-danh-gia',
+              title: '5 Tiêu chí chấm Điểm rèn luyện (Thang điểm 100)',
+              badge: '5 Tiêu chí',
+              content: `
+                <div class="space-y-4">
+                  <div class="p-3.5 bg-teal-50 border border-teal-200 rounded-2xl text-xs text-teal-900 leading-relaxed">
+                    <strong>Tổng thang điểm: 100 điểm.</strong> Kết quả ĐRL là điều kiện bắt buộc để xét học bổng khuyến khích học tập, danh hiệu sinh viên xuất sắc, giải thưởng NCKH và điều kiện tốt nghiệp.
+                  </div>
+                  <h4 class="font-bold text-sm sm:text-base text-[#1A4F56]">Chi tiết 5 nội dung đánh giá:</h4>
+                  <div class="space-y-2.5 text-xs sm:text-sm text-slate-700">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                      <strong class="text-teal-800">1. Ý thức tham gia học tập (Tối đa 20 điểm):</strong>
+                      <p class="text-xs text-slate-600 mt-1">• Đi học chuyên cần, đúng giờ, không vi phạm quy chế thi.<br>• Tham gia NCKH UEH (UEH500, Nhà nghiên cứu trẻ), CLB học thuật.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                      <strong class="text-teal-800">2. Ý thức chấp hành pháp luật & nội quy nhà trường (Tối đa 25 điểm):</strong>
+                      <p class="text-xs text-slate-600 mt-1">• Đeo thẻ sinh viên, thực hiện văn hóa học đường.<br>• Chấp hành luật an toàn giao thông, an ninh mạng, quy định nội trú - ngoại trú.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                      <strong class="text-teal-800">3. Ý thức tham gia hoạt động chính trị, xã hội, văn thể mỹ (Tối đa 20 điểm):</strong>
+                      <p class="text-xs text-slate-600 mt-1">• Tham gia chiến dịch tình nguyện Mùa Hè Xanh, Xuân Tình Nguyện, hiến máu.<br>• Tham gia Hội thao UEH Youth Sport, hội diễn văn nghệ.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                      <strong class="text-teal-800">4. Ý thức công dân trong quan hệ cộng đồng (Tối đa 25 điểm):</strong>
+                      <p class="text-xs text-slate-600 mt-1">• Tham gia Ngày hội Xanh - UEH Green Campus, tuyên truyền văn minh học đường.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                      <strong class="text-teal-800">5. Ý thức tham gia phụ trách lớp, đoàn thể (Tối đa 10 điểm):</strong>
+                      <p class="text-xs text-slate-600 mt-1">• Đảm nhiệm Ban Cán sự Lớp, BCH Chi Đoàn - Chi Hội, CLB/Đội/Nhóm.</p>
+                    </div>
+                  </div>
+                </div>
+              `
+            },
+            {
+              id: 'drl-xep-loai-hoc-bong',
+              title: 'Khung xếp loại ĐRL & Tiêu chuẩn xét Học bổng',
+              badge: 'Xếp loại & Học bổng',
+              content: `
+                <div class="space-y-4">
+                  <h4 class="font-bold text-sm sm:text-base text-[#1A4F56]">Bảng phân loại mức điểm rèn luyện:</h4>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
+                      <thead class="bg-teal-50 text-teal-900 font-bold">
+                        <tr>
+                          <th class="p-2.5 border-b">Khung điểm</th>
+                          <th class="p-2.5 border-b">Xếp loại</th>
+                          <th class="p-2.5 border-b">Điều kiện xét Học bổng KKHT</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tr>
+                          <td class="p-2.5 font-bold text-emerald-700">90 - 100 điểm</td>
+                          <td class="p-2.5 font-semibold text-emerald-800">Xuất sắc</td>
+                          <td class="p-2.5">Đủ điều kiện xét Học bổng Xuất sắc</td>
+                        </tr>
+                        <tr>
+                          <td class="p-2.5 font-bold text-teal-700">80 - 89 điểm</td>
+                          <td class="p-2.5 font-semibold text-teal-800">Tốt</td>
+                          <td class="p-2.5">Đủ điều kiện xét Học bổng Giỏi / Khá</td>
+                        </tr>
+                        <tr>
+                          <td class="p-2.5 font-bold text-blue-700">65 - 79 điểm</td>
+                          <td class="p-2.5 font-semibold text-blue-800">Khá</td>
+                          <td class="p-2.5">Không đủ điều kiện xét HB Khuyến khích</td>
+                        </tr>
+                        <tr>
+                          <td class="p-2.5 font-bold text-amber-700">50 - 64 điểm</td>
+                          <td class="p-2.5 font-semibold text-amber-800">Trung bình</td>
+                          <td class="p-2.5">Bị cảnh báo rèn luyện</td>
+                        </tr>
+                        <tr>
+                          <td class="p-2.5 font-bold text-rose-700">Dưới 50 điểm</td>
+                          <td class="p-2.5 font-semibold text-rose-800">Yếu / Kém</td>
+                          <td class="p-2.5">Xét kỷ luật học vụ</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              `
             }
+          ]
+        },
+        { 
+          id: 2, 
+          title: 'Học phí Khóa 52 & Miễn giảm chính sách', 
+          date: '10/10/2026', 
+          source: 'Portal UEH', 
+          sourceTag: 'portal',
+          docType: 'chinhthuc',
+          cat: 'bieumau', 
+          icon: 'file-spreadsheet',
+          hasSubLevels: true,
+          subLevelsDescription: 'Mức học phí và chính sách miễn giảm được quy định cụ thể theo từng khóa tuyển sinh, vui lòng chọn:',
+          subLevels: [
+            {
+              id: 'hp-k52',
+              title: 'Đơn giá học phí Khóa 52 (Tuyển sinh 2026)',
+              badge: 'Khóa K52 Mới nhất',
+              content: `
+                <div class="space-y-4">
+                  <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 leading-relaxed">
+                    <strong>Thông báo chính thức:</strong> Học phí Khóa 52 Đại học chính quy UEH được tính theo tín chỉ đăng ký thực tế từng học kỳ.
+                  </div>
+                  <h4 class="font-bold text-sm sm:text-base text-[#1A4F56]">Biểu phí học phí Khóa 52:</h4>
+                  <ul class="list-disc list-inside space-y-2 text-xs sm:text-sm text-slate-700">
+                    <li><strong>Chương trình Chuẩn (Tiếng Việt):</strong> <span class="text-teal-800 font-extrabold text-base">1.400.000 VNĐ / tín chỉ</span> (~50 - 55 triệu đồng/năm).</li>
+                    <li><strong>Học phần giảng dạy bằng Tiếng Anh:</strong> Hệ số x1.4 = <strong class="text-slate-900">1.960.000 VNĐ / tín chỉ</strong>.</li>
+                    <li><strong>Học phần Thực hành / Đồ án:</strong> Hệ số x1.2 = <strong class="text-slate-900">1.680.000 VNĐ / tín chỉ</strong>.</li>
+                    <li><strong>Phân hiệu Vĩnh Long (UEH Mekong):</strong> Bằng 60% mức học phí tại TP.HCM (<strong class="text-teal-700">840.000 VNĐ / tín chỉ</strong>).</li>
+                  </ul>
+                  <div class="pt-3 border-t border-slate-200 text-xs text-slate-500">
+                    <p class="font-bold text-teal-800 mb-1">Nguồn thông tin chính thống:</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1">
+                      <a href="https://tuyensinh.ueh.edu.vn" target="_blank" class="text-teal-700 font-semibold underline hover:text-teal-900">Cổng Tuyển sinh UEH (tuyensinh.ueh.edu.vn)</a>
+                      <a href="https://taichinh.ueh.edu.vn" target="_blank" class="text-teal-700 font-semibold underline hover:text-teal-900">Phòng Kế hoạch - Tài chính (taichinh.ueh.edu.vn)</a>
+                    </div>
+                  </div>
+                </div>
+              `
+            },
+            {
+              id: 'hp-k51-k50',
+              title: 'Đơn giá học phí Khóa 51 & Khóa 50',
+              badge: 'Khóa K51 & K50',
+              content: `
+                <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+                  <p>• <strong>Chương trình chuẩn:</strong> 1.050.000 VNĐ / tín chỉ.</p>
+                  <p>• <strong>Chương trình tiếng Anh bán phần:</strong> 1.450.000 VNĐ / tín chỉ.</p>
+                </div>
+              `
+            }
+          ]
+        },
+        { 
+          id: 3, 
+          title: 'Đăng ký tín chỉ học phần', 
+          date: '08/10/2026', 
+          source: 'Cổng thông tin UEH', 
+          sourceTag: 'congthongtin',
+          docType: 'chinhthuc',
+          cat: 'hocvu', 
+          icon: 'file-text',
+          hasSubLevels: true,
+          subLevelsDescription: 'Vui lòng chọn khóa học và hệ đào tạo để xem hướng dẫn đăng ký môn học:',
+          subLevels: [
+            {
+              id: 'dk-k52-freshman',
+              title: 'Khóa 52 - Tân sinh viên (Tuyển sinh 2026)',
+              badge: 'Tân sinh viên K52',
+              content: `
+                <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+                  <div class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900">
+                    <strong>Tân sinh viên K52:</strong> Học kỳ đầu tiên, nhà trường đã tự động xếp Thời khóa biểu mặc định. Bắt đầu từ Học kỳ đầu năm 2027, K52 sẽ chính thức tự đăng ký tại <code>student.ueh.edu.vn</code>.
+                  </div>
+                </div>
+              `
+            }
+          ]
+        },
+        { 
+          id: 4, 
+          title: 'Chuẩn Ngoại ngữ & Tin học tốt nghiệp', 
+          date: '05/10/2026', 
+          source: 'Cổng thông tin UEH', 
+          sourceTag: 'congthongtin',
+          docType: 'chinhthuc',
+          cat: 'daotao', 
+          icon: 'graduation-cap',
+          hasSubLevels: false,
+          directContent: `
+            <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+              <p>• <strong>Tiếng Anh:</strong> TOEIC từ 500 điểm hoặc IELTS 5.0 đối với chương trình chuẩn; IELTS 6.5 đối với cử nhân tài năng ISB.</p>
+              <p>• <strong>Tin học số:</strong> Chứng chỉ quốc tế IC3 GS6 (Level 1, 2, 3) hoặc MOS (Word, Excel, PowerPoint).</p>
+            </div>
+          `
+        }
+      ],
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Update active tab style
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    // Render posts for the selected category
-                    const category = tab.getAttribute('data-category');
-                    renderPosts(category);
-                });
-            });
+      notifications: [
+        { id: '1', title: 'Thông báo về lịch đăng ký môn học học kỳ giữa 2026', cat: 'Học vụ', date: '23/08/2026', icon: 'folder', bg: '#A2DEE6', color: '#116975', content: 'Phòng Đào tạo thông báo kế hoạch mở cổng đăng ký tín chỉ học phần cho sinh viên khóa K49, K50, K51 qua trang student.ueh.edu.vn.' },
+        { id: '2', title: 'UEH mở đơn đăng ký học bổng khuyến khích', cat: 'Học bổng', date: '21/08/2026', icon: 'bell', bg: '#ECC7F7', color: '#8B3FA1', content: 'Chương trình học bổng Khuyến khích học tập & Tài năng UEH nhận hồ sơ trực tuyến. Điều kiện: ĐTB từ 8.0 trở lên và điểm rèn luyện Tốt.' },
+        { id: '3', title: 'Tham gia Ngày hội việc làm UEH Career Fair', cat: 'Sự kiện', date: '19/08/2026', icon: 'briefcase', bg: '#FED271', color: '#BD6C05', content: 'Ngày hội việc làm quy tụ hơn 80 doanh nghiệp tài chính ngân hàng tại sảnh cơ sở B 279 Nguyễn Tri Phương.' },
+        { id: '4', title: 'Cập nhật quy định mới nhất về xét tốt nghiệp', cat: 'Học vụ', date: '10/08/2026', icon: 'clipboard-pen', bg: '#E5D7F0', color: '#7A3F98', content: 'Quy chế mới áp dụng chuẩn chứng chỉ ngoại ngữ quốc tế TOEIC/IELTS và IC3 GS6 số hóa.' },
+        { id: '5', title: 'Lịch thi kết thúc học phần học kỳ giữa 2026 (Dự kiến)', cat: 'Học vụ', date: '10/08/2026', icon: 'file-check', bg: '#8AE68A', color: '#1C7326', content: 'Lịch thi dự kiến diễn ra từ 20/10/2026 đến 05/11/2026. Sinh viên vui lòng tra cứu số báo danh tại student.ueh.edu.vn.' }
+      ],
 
-            // Initial render
-            renderPosts('general');
+      todos: [
+        { id: 'td-1', title: 'Đăng ký môn học HKC 2026', cat: 'hoctap', timeframe: 'today', date: '17/09/2026', completed: false, icon: 'folder', bg: '#A3DDE5', color: '#136B77' },
+        { id: 'td-2', title: 'Chuẩn bị tài liệu thuyết trình', cat: 'hoctap', timeframe: 'today', date: '', completed: false, icon: 'clipboard-pen', bg: '#E5D7F0', color: '#7A3F98' },
+        { id: 'td-3', title: 'Xét học bổng', cat: 'hocbong', timeframe: 'upcoming', date: '02/10/2026', completed: false, icon: 'bell', bg: '#ECC7F7', color: '#8B3FA1' },
+        { id: 'td-4', title: 'Tham dự ngày hội việc làm', cat: 'sukien', timeframe: 'upcoming', date: '08/10/2026', completed: false, icon: 'file-check', bg: '#8AE68A', color: '#1C7326' },
+        { id: 'td-5', title: 'Kiểm tra GK', cat: 'hoctap', timeframe: 'upcoming', date: '11/10/2026', completed: false, icon: 'briefcase', bg: '#FED271', color: '#BD6C05' }
+      ]
+    };
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('mobile-sidebar-backdrop');
+      if (sidebar && backdrop) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      }
+    }
+    window.toggleMobileSidebar = toggleMobileSidebar;
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('mobile-sidebar-backdrop');
+      if (sidebar && backdrop) {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+    window.closeMobileSidebar = closeMobileSidebar;
+
+    function toggleAuthMode(mode) {
+      const loginContainer = document.getElementById('login-container');
+      const registerContainer = document.getElementById('register-container');
+      const errorDiv = document.getElementById('login-error');
+      const regErrorDiv = document.getElementById('reg-error');
+      
+      if (errorDiv) errorDiv.classList.add('hidden');
+      if (regErrorDiv) regErrorDiv.classList.add('hidden');
+
+      if (mode === 'register') {
+        loginContainer.classList.add('hidden');
+        registerContainer.classList.remove('hidden');
+      } else {
+        registerContainer.classList.add('hidden');
+        loginContainer.classList.remove('hidden');
+      }
+    }
+    window.toggleAuthMode = toggleAuthMode;
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('reg-password').value;
+      const repwd = document.getElementById('reg-repassword').value;
+      const errorDiv = document.getElementById('reg-error');
+
+      if (pwd !== repwd) {
+        errorDiv.innerText = 'Mật khẩu nhập lại không khớp!';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      
+      const email = document.getElementById('reg-email').value;
+      if (!email.endsWith('@st.ueh.edu.vn')) {
+        errorDiv.innerText = 'Vui lòng sử dụng email sinh viên UEH hợp lệ (@st.ueh.edu.vn)!';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      errorDiv.classList.add('hidden');
+      
+      // Hiển thị thông báo và chuyển qua tab đăng nhập
+      showNotificationToast('Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
+      toggleAuthMode('login');
+      
+      // Tự động điền username vừa đăng ký vào form đăng nhập để tiện lợi
+      const usernameInput = document.getElementById('reg-username').value;
+      document.getElementById('login-username').value = usernameInput;
+      document.getElementById('login-password').value = '';
+    }
+    window.handleRegisterSubmit = handleRegisterSubmit;
+
+    function switchLoginTab(mode) {
+      AppState.loginMode = mode;
+      const tabPwd = document.getElementById('tab-login-pwd');
+      const tabEmail = document.getElementById('tab-login-email');
+      const labelAcc = document.getElementById('label-account');
+      const inputUser = document.getElementById('login-username');
+
+      if (mode === 'password') {
+        tabPwd.className = "flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 bg-[#BDDEE2] text-[#1E575E] shadow-sm";
+        tabEmail.className = "flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 text-slate-500 hover:text-[#1E575E]";
+        labelAcc.innerText = "Tài khoản / Account";
+        inputUser.placeholder = "Nhập tài khoản / Enter your account";
+      } else {
+        tabEmail.className = "flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 bg-[#BDDEE2] text-[#1E575E] shadow-sm";
+        tabPwd.className = "flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 text-slate-500 hover:text-[#1E575E]";
+        labelAcc.innerText = "Email sinh viên UEH";
+        inputUser.placeholder = "ten.mssv@st.ueh.edu.vn";
+      }
+      lucide.createIcons();
+    }
+    window.switchLoginTab = switchLoginTab;
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('login-password');
+      const icon = document.getElementById('toggle-password-icon');
+      if (!passwordInput || !icon) return;
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        passwordInput.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+    window.togglePasswordVisibility = togglePasswordVisibility;
+
+    function quickFillAdmin() {
+      const userEl = document.getElementById('login-username');
+      const passEl = document.getElementById('login-password');
+      if (userEl) userEl.value = 'admin';
+      if (passEl) passEl.value = 'admin123';
+    }
+    window.quickFillAdmin = quickFillAdmin;
+
+    function handleLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const userVal = document.getElementById('login-username').value.trim();
+      const passVal = document.getElementById('login-password').value.trim();
+      const errorDiv = document.getElementById('login-error');
+
+      // 1. Tài khoản Quản trị viên duy nhất
+      if (userVal.toLowerCase() === 'admin' && passVal === 'admin123') {
+        errorDiv.classList.add('hidden');
+        performLogin('admin', 'Quản trị viên (Admin)', 'Hệ thống UEH StudyBuddy');
+      } 
+      // 2. Tài khoản Sinh viên chính thức ueher01
+      else if (userVal === 'ueher01' && passVal === 'ueh001') {
+        errorDiv.classList.add('hidden');
+        performLogin('student', 'Nguyễn Văn A (ueher01)', 'Tân sinh viên K52 - UEH');
+      }
+      // 3. Hỗ trợ đăng nhập bằng email sinh viên UEH hoặc tài khoản bất kỳ (Ví dụ: ueher02)
+      else if (userVal.length >= 3 && passVal.length >= 6) {
+        errorDiv.classList.add('hidden');
+        // Nếu dùng email thì lấy phần trước @, nếu dùng username thì lấy nguyên username
+        const displayName = userVal.includes('@') ? userVal.split('@')[0] : userVal;
+        performLogin('student', displayName, 'Sinh viên UEH');
+      } 
+      // Sai tài khoản / mật khẩu
+      else {
+        errorDiv.classList.remove('hidden');
+      }
+    }
+    window.handleLoginSubmit = handleLoginSubmit;
+
+    function performLogin(role, displayName, displaySub) {
+      AppState.currentUser = role;
+      document.getElementById('current-user-name').innerText = displayName;
+      document.getElementById('current-user-role').innerText = displaySub;
+
+      const usernameInput = document.getElementById('login-username').value.trim() || 'student_guest';
+      AppState.currentUserUsername = usernameInput;
+      if (role === 'student') {
+        AppState.adminMetrics.loggedStudentAccounts.add(usernameInput);
+      }
+      updateAdminDashboardMetrics();
+
+      const adminMenu = document.getElementById('admin-menu-section');
+      if (role === 'admin') {
+        adminMenu.classList.remove('hidden');
+      } else {
+        adminMenu.classList.add('hidden');
+      }
+
+      const studySearchInput = document.getElementById('study-search-input');
+      if (studySearchInput) {
+        studySearchInput.value = '';
+        renderStudyList();
+      }
+
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+
+      navigateTo('home');
+      showNotificationToast(`Xin chào mừng ${displayName}!`);
+      lucide.createIcons();
+    }
+
+    function handleLogout() {
+      AppState.currentUser = null;
+      document.getElementById('app-view').classList.add('hidden');
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+
+      const studySearchInput = document.getElementById('study-search-input');
+      if (studySearchInput) {
+        studySearchInput.value = '';
+        renderStudyList();
+      }
+
+      showNotificationToast('Đã đăng xuất tài khoản.');
+    }
+    window.handleLogout = handleLogout;
+
+    function navigateTo(tabId) {
+      AppState.currentTab = tabId;
+
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab-item').forEach(btn => btn.classList.remove('bg-white/20', 'shadow-inner', 'font-bold'));
+
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.remove('hidden');
+
+      // Cập nhật desktop sidebar
+      const activeNavBtn = document.getElementById(`nav-btn-${tabId}`);
+      if (activeNavBtn) activeNavBtn.classList.add('bg-white/20', 'shadow-inner', 'font-bold');
+
+      // Cập nhật mobile bottom bar
+      ['home', 'chat', 'calendar', 'study-info', 'notifications', 'todo'].forEach(t => {
+        const mBtn = document.getElementById(`mobile-nav-${t}`);
+        if (!mBtn) return;
+        if (t === tabId) {
+          mBtn.className = "flex flex-col items-center justify-center text-[#2F6F75] w-12 py-1";
+          const span = mBtn.querySelector('span');
+          if (span) span.className = "text-[10px] font-bold mt-0.5";
+        } else {
+          mBtn.className = "flex flex-col items-center justify-center text-slate-400 w-12 py-1";
+          const span = mBtn.querySelector('span');
+          if (span) span.className = "text-[10px] font-medium mt-0.5";
+        }
+      });
+
+      if (tabId === 'calendar') {
+        renderCalendar();
+        renderSelectedDateSchedule();
+        renderUpcomingEvents();
+      }
+
+      if (tabId === 'admin') {
+        updateAdminDashboardMetrics();
+      }
+
+      lucide.createIcons();
+    }
+    window.navigateTo = navigateTo;
+
+    const GEMINI_SYSTEM_INSTRUCTION = `Bạn là StudyBuddy, trợ lý ảo thông minh của Đại học Kinh tế TP. Hồ Chí Minh (UEH).
+Nhiệm vụ của bạn là hỗ trợ sinh viên UEH một cách nhiệt tình, lễ phép, chính xác về:
+- Học phí mới nhất Khóa 52 (Chương trình Chuẩn tiếng Việt: 1.400.000 VNĐ / tín chỉ).
+- Hệ thống 5 tiêu chí chấm Điểm rèn luyện ĐRL UEH (thang điểm 100).
+- Các loại học bổng UEH (Khuyến khích học tập, Tài năng, Hỗ trợ khó khăn).
+- Quy chế đăng ký môn học tín chỉ student.ueh.edu.vn, chuẩn đầu ra TOEIC/IELTS, IC3 GS6.
+- Dẫn nguồn đến tuyensinh.ueh.edu.vn, taichinh.ueh.edu.vn, dsa.ueh.edu.vn.`;
+
+    function triggerHomeChat() {
+      const input = document.getElementById('home-search-input');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      navigateTo('chat');
+      setTimeout(() => {
+        postUserAndBotMessage(text);
+        input.value = '';
+      }, 100);
+    }
+    window.triggerHomeChat = triggerHomeChat;
+
+    function directAsk(question) {
+      navigateTo('chat');
+      setTimeout(() => {
+        postUserAndBotMessage(question);
+      }, 100);
+    }
+    window.directAsk = directAsk;
+
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      postUserAndBotMessage(text);
+      input.value = '';
+    }
+    window.sendChatMessage = sendChatMessage;
+
+    function handleQuickChipClick(questionText) {
+      postUserAndBotMessage(questionText);
+    }
+    window.handleQuickChipClick = handleQuickChipClick;
+
+    async function postUserAndBotMessage(userQuestion) {
+      const chatContainer = document.getElementById('chat-messages-container');
+      const typingIndicator = document.getElementById('chat-typing-indicator');
+
+      // 1. Thêm tin nhắn của User
+      const userBubble = document.createElement('div');
+      userBubble.className = "flex justify-end animate-fade-in";
+      userBubble.innerHTML = `
+        <div class="bg-[#2F6F75] text-white px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-2xl rounded-tr-xs font-medium text-xs sm:text-[14px] shadow-sm max-w-lg leading-relaxed">
+          ${escapeHtml(userQuestion)}
+        </div>
+      `;
+      chatContainer.appendChild(userBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      AppState.chatHistory.push({ role: 'user', parts: [{ text: userQuestion }] });
+
+      // 2. Hiện typing indicator
+      typingIndicator.classList.remove('hidden');
+      typingIndicator.classList.add('flex');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      let answerHtml = '';
+      try {
+        const responseText = await callGeminiApi(userQuestion);
+        answerHtml = formatMarkdownToUEHStyle(responseText);
+        AppState.chatHistory.push({ role: 'model', parts: [{ text: responseText }] });
+      } catch (err) {
+        console.warn('Sử dụng dữ liệu nội bộ UEH StudyBuddy:', err);
+        answerHtml = generateStudyBuddyReply(userQuestion);
+      } finally {
+        typingIndicator.classList.add('hidden');
+        typingIndicator.classList.remove('flex');
+      }
+
+      AppState.adminMetrics.totalAiQuestionsAnswered++;
+      updateAdminDashboardMetrics();
+
+      const answerId = 'ans-' + Date.now();
+      const botBubble = document.createElement('div');
+      botBubble.className = "flex items-start gap-3 max-w-3xl animate-fade-in";
+      botBubble.innerHTML = `
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#112338] border-2 border-[#1E90FF] flex items-center justify-center shrink-0 shadow-md relative">
+          <div class="w-5 h-2.5 sm:w-6 sm:h-3 bg-amber-400 rounded-full flex items-center justify-around px-0.5">
+            <div class="w-1 h-1 bg-black rounded-full"></div>
+            <div class="w-1 h-1 bg-black rounded-full"></div>
+          </div>
+          <div class="absolute -left-1 top-2.5 sm:top-3 w-1.5 sm:w-2 h-4 sm:h-5 bg-[#1E90FF] rounded-xs"></div>
+          <div class="absolute -right-1 top-2.5 sm:top-3 w-1.5 sm:w-2 h-4 sm:h-5 bg-[#1E90FF] rounded-xs"></div>
+        </div>
+        <div class="space-y-2 flex-1">
+          <div class="bg-[#EEF7F8] border border-[#DCEDF0] p-4 sm:p-6 rounded-2xl sm:rounded-3xl rounded-tl-none text-[#23585F] text-xs sm:text-[14px] leading-relaxed space-y-3 shadow-xs">
+            ${answerHtml}
+          </div>
+          <div id="${answerId}-feedback" class="flex items-center gap-2 pl-2 text-[11px] text-slate-500">
+            <span>Câu trả lời có hữu ích không?</span>
+            <button onclick="handleAnswerFeedback('${answerId}', true)" class="px-2 py-0.5 rounded-md hover:bg-emerald-50 hover:text-emerald-700 transition flex items-center gap-1 border border-slate-200">
+              👍 Hài lòng
+            </button>
+            <button onclick="handleAnswerFeedback('${answerId}', false)" class="px-2 py-0.5 rounded-md hover:bg-rose-50 hover:text-rose-700 transition flex items-center gap-1 border border-slate-200">
+              👎 Chưa hài lòng
+            </button>
+          </div>
+        </div>
+      `;
+      chatContainer.appendChild(botBubble);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        botBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+
+    function handleAnswerFeedback(feedbackId, isSatisfied) {
+      const fbBox = document.getElementById(`${feedbackId}-feedback`);
+      if (fbBox) {
+        fbBox.innerHTML = `
+          <span class="text-emerald-700 font-semibold flex items-center gap-1">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i> Cảm ơn bạn đã đóng góp ý kiến để StudyBuddy cải thiện!
+          </span>
+        `;
+        lucide.createIcons();
+      }
+
+      AppState.adminMetrics.satisfactionVotesTotal++;
+      if (isSatisfied) {
+        AppState.adminMetrics.satisfactionVotesPositive++;
+      }
+      updateAdminDashboardMetrics();
+      showNotificationToast('Đã ghi nhận phản hồi đánh giá chất lượng câu trả lời.');
+    }
+    window.handleAnswerFeedback = handleAnswerFeedback;
+
+    function updateAdminDashboardMetrics() {
+      const metrics = AppState.adminMetrics;
+
+      // 1. Tổng số sinh viên online & Tính % tăng mỗi ngày
+      const totalOnline = metrics.baseActiveStudents + metrics.loggedStudentAccounts.size;
+      const onlineEl = document.getElementById('admin-online-students-count');
+      const growthEl = document.getElementById('admin-growth-rate');
+      if (onlineEl) onlineEl.innerText = totalOnline.toLocaleString('vi-VN');
+      if (growthEl && metrics.yesterdayStudentBase > 0) {
+        const growthPercent = (((totalOnline - metrics.yesterdayStudentBase) / metrics.yesterdayStudentBase) * 100).toFixed(1);
+        const isPositive = growthPercent >= 0;
+        growthEl.innerText = `${isPositive ? '↑ Tăng' : '↓ Giảm'} ${Math.abs(growthPercent)}% hôm nay`;
+        growthEl.className = isPositive ? 'text-[11px] text-emerald-600 font-semibold' : 'text-[11px] text-rose-600 font-semibold';
+      }
+
+      // 2. Câu hỏi AI giải đáp & Thu thập % độ hài lòng
+      const questionsEl = document.getElementById('admin-ai-questions-count');
+      const satisfactionEl = document.getElementById('admin-satisfaction-rate');
+      const votesSummaryEl = document.getElementById('admin-votes-summary');
+      if (questionsEl) questionsEl.innerText = metrics.totalAiQuestionsAnswered.toLocaleString('vi-VN');
+      if (satisfactionEl && metrics.satisfactionVotesTotal > 0) {
+        const satisfactionPercent = ((metrics.satisfactionVotesPositive / metrics.satisfactionVotesTotal) * 100).toFixed(1);
+        satisfactionEl.innerText = `Độ hài lòng ${satisfactionPercent}%`;
+      }
+      if (votesSummaryEl) {
+        votesSummaryEl.innerText = `(${metrics.satisfactionVotesPositive}/${metrics.satisfactionVotesTotal} lượt đánh giá)`;
+      }
+
+      // 3. Thông báo phát hành
+      const notiCountEl = document.getElementById('admin-noti-count');
+      if (notiCountEl) notiCountEl.innerText = AppState.notifications.length;
+    }
+    window.updateAdminDashboardMetrics = updateAdminDashboardMetrics;
+
+    async function callGeminiApi(promptText) {
+      const apiKey = "";
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+      const payload = {
+        contents: AppState.chatHistory,
+        systemInstruction: { parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }] },
+        generationConfig: { temperature: 0.7, topP: 0.95, maxOutputTokens: 1024 }
+      };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('Empty response');
+      return text;
+    }
+
+    function formatMarkdownToUEHStyle(rawText) {
+      let formatted = escapeHtml(rawText);
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#1A4F56] font-bold">$1</strong>');
+      formatted = formatted.replace(/\*(.*?)\*/g, '<em class="text-[#2F6F75]">$1</em>');
+
+      const lines = formatted.split('\n');
+      let htmlOutput = '';
+      let inList = false;
+
+      for (let line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          if (inList) { htmlOutput += '</ul>'; inList = false; }
+          continue;
+        }
+
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          if (!inList) { htmlOutput += '<ul class="list-disc list-inside space-y-1 pl-2 text-slate-700">'; inList = true; }
+          htmlOutput += `<li>${trimmed.substring(2)}</li>`;
+        } else if (/^\d+\.\s/.test(trimmed)) {
+          if (inList) { htmlOutput += '</ul>'; inList = false; }
+          htmlOutput += `<p class="font-bold text-[#1D545B] mt-2">${trimmed}</p>`;
+        } else {
+          if (inList) { htmlOutput += '</ul>'; inList = false; }
+          htmlOutput += `<p class="text-slate-700">${trimmed}</p>`;
+        }
+      }
+      if (inList) htmlOutput += '</ul>';
+
+      if (!htmlOutput.includes('Cổng thông tin UEH')) {
+        htmlOutput += `<p class="pt-2 text-xs">Nguồn chính thống: <a href="https://tuyensinh.ueh.edu.vn" target="_blank" class="font-bold text-[#147481] hover:underline">Cổng Tuyển sinh UEH (tuyensinh.ueh.edu.vn)</a></p>`;
+      }
+      return htmlOutput;
+    }
+
+    function generateStudyBuddyReply(query) {
+      const q = query.toLowerCase();
+      if (q.includes('học phí') || q.includes('k52')) {
+        return `
+          <p class="font-bold text-[#16484F] text-base">Học phí Khóa 52 Đại học chính quy UEH:</p>
+          <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-700">
+            <li><strong>Chương trình Chuẩn (tiếng Việt):</strong> 1.400.000 VNĐ / tín chỉ (~50 - 55 triệu/năm).</li>
+            <li><strong>Môn học tiếng Anh:</strong> Hệ số 1.4 = 1.960.000 VNĐ / tín chỉ.</li>
+            <li><strong>Phân hiệu Vĩnh Long:</strong> Thu bằng 60% mức tại TP.HCM (840.000 VNĐ / tín chỉ).</li>
+          </ul>
+          <p class="pt-2 text-xs">Nguồn: <a href="https://tuyensinh.ueh.edu.vn" target="_blank" class="font-bold text-[#147481] underline">Cổng Tuyển sinh & Đề án học phí UEH</a></p>
+        `;
+      }
+      return `
+        <p class="font-bold text-[#16484F] text-base">StudyBuddy đã ghi nhận câu hỏi:</p>
+        <p class="text-slate-700">"${escapeHtml(query)}"</p>
+        <p class="text-slate-700">Bạn có thể tra cứu nhanh tại mục <strong>Thông tin học tập</strong> hoặc liên hệ cổng DSA UEH: <em>dsa.ueh.edu.vn</em>.</p>
+      `;
+    }
+
+    function resetChatHistory() {
+      AppState.chatHistory = [];
+      const chatContainer = document.getElementById('chat-messages-container');
+      chatContainer.innerHTML = `
+        <div class="flex items-start gap-3 max-w-3xl animate-fade-in">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center">
+            <svg class="w-full h-full drop-shadow-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 22 46 C 22 20, 78 20, 78 46" stroke="#0284C7" stroke-width="7" stroke-linecap="round" fill="none"/>
+              <ellipse cx="50" cy="51" rx="34" ry="28" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+              <rect x="12" y="36" width="10" height="24" rx="5" fill="#0284C7" />
+              <rect x="15" y="40" width="4" height="16" rx="2" fill="#38BDF8" />
+              <rect x="78" y="36" width="10" height="24" rx="5" fill="#0284C7" />
+              <rect x="81" y="40" width="4" height="16" rx="2" fill="#38BDF8" />
+              <path d="M 17 56 C 17 76, 36 82, 46 78" stroke="#0284C7" stroke-width="4.5" stroke-linecap="round" fill="none" />
+              <circle cx="47" cy="77" r="4.5" fill="#0284C7" />
+              <rect x="25" y="36" width="50" height="30" rx="15" fill="#0B192C" />
+              <ellipse cx="40" cy="51" rx="4.5" ry="5.5" fill="#F59E0B" />
+              <ellipse cx="60" cy="51" rx="4.5" ry="5.5" fill="#F59E0B" />
+              <circle cx="39" cy="49" r="1.5" fill="#FEF3C7" />
+              <circle cx="59" cy="49" r="1.5" fill="#FEF3C7" />
+            </svg>
+          </div>
+          <div class="bg-[#EEF7F8] border border-[#DCEDF0] px-4 py-3 sm:px-5 sm:py-4 rounded-2xl sm:rounded-3xl rounded-tl-none text-[#23585F] text-xs sm:text-[14px] font-medium leading-relaxed shadow-xs">
+            Buddy chào bạn, bạn muốn biết thông tin gì về UEH thế?
+          </div>
+        </div>
+      `;
+      showNotificationToast('Đã làm mới hội thoại.');
+    }
+    window.resetChatHistory = resetChatHistory;
+
+    function initRealtimeClock() {
+      const now = new Date();
+      const weekdays = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+      const dayName = weekdays[now.getDay()];
+      const dayStr = String(now.getDate()).padStart(2, '0');
+      const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+      const yearStr = now.getFullYear();
+      
+      const textEl = document.getElementById('realtime-today-text');
+      if (textEl) textEl.innerText = `${dayName}, ${dayStr}/${monthStr}/${yearStr}`;
+    }
+
+    function goToToday() {
+      const now = new Date();
+      AppState.calendarCurrentYear = now.getFullYear();
+      AppState.calendarCurrentMonth = now.getMonth();
+      AppState.calendarSelectedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      renderCalendar();
+      renderSelectedDateSchedule();
+      showNotificationToast('Đã chuyển về ngày hôm nay.');
+    }
+    window.goToToday = goToToday;
+
+    function changeCalendarMonth(offset) {
+      AppState.calendarCurrentMonth += offset;
+      if (AppState.calendarCurrentMonth > 11) {
+        AppState.calendarCurrentMonth = 0;
+        AppState.calendarCurrentYear++;
+      } else if (AppState.calendarCurrentMonth < 0) {
+        AppState.calendarCurrentMonth = 11;
+        AppState.calendarCurrentYear--;
+      }
+      renderCalendar();
+    }
+    window.changeCalendarMonth = changeCalendarMonth;
+
+    function renderCalendar() {
+      const year = AppState.calendarCurrentYear;
+      const month = AppState.calendarCurrentMonth;
+
+      const monthLabel = document.getElementById('calendar-month-year-label');
+      if (monthLabel) monthLabel.innerText = `Tháng ${month + 1}, ${year}`;
+
+      const grid = document.getElementById('calendar-days-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const firstDayOfMonth = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let startDayOfWeek = firstDayOfMonth.getDay() - 1;
+      if (startDayOfWeek === -1) startDayOfWeek = 6;
+
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isSelected = (dateStr === AppState.calendarSelectedDate);
+        const isRealToday = (dateStr === todayIsoString);
+        const dayItems = AppState.calendarEvents.filter(item => item.date === dateStr);
+
+        const cell = document.createElement('div');
+        cell.className = "flex flex-col items-center justify-center py-1 sm:py-1.5 cursor-pointer transition relative group rounded-xl hover:bg-teal-50/50";
+        cell.onclick = () => selectCalendarDate(dateStr);
+
+        let dayContent = '';
+        if (isSelected) {
+          dayContent = `<span class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#BAE1E5] text-[#164D54] font-extrabold flex items-center justify-center shadow-inner text-xs sm:text-base">${day}</span>`;
+        } else if (isRealToday) {
+          dayContent = `<span class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-[#2F6F75] text-[#2F6F75] font-extrabold flex items-center justify-center hover:bg-slate-100 text-xs sm:text-base">${day}</span>`;
+        } else {
+          dayContent = `<span class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-bold text-slate-700 flex items-center justify-center hover:bg-slate-100 text-xs sm:text-base">${day}</span>`;
+        }
+
+        let dotsHtml = '<div class="flex items-center justify-center min-h-[6px] -mt-0.5 sm:-mt-1">';
+        if (dayItems.length > 0) {
+          const dotColor = dayItems[0].color || '#2F6F75';
+          dotsHtml += `<span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 shadow-xs border border-white" style="background-color: ${dotColor};"></span>`;
+        }
+        dotsHtml += '</div>';
+
+        cell.innerHTML = `${dayContent}${dotsHtml}`;
+        grid.appendChild(cell);
+      }
+
+      const totalCells = startDayOfWeek + daysInMonth;
+      const nextMonthCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
+      for (let nextDay = 1; nextDay <= nextMonthCells; nextDay++) {
+        const cell = document.createElement('div');
+        cell.className = "py-2 text-slate-300 font-medium select-none text-xs sm:text-sm";
+        cell.innerText = nextDay;
+        grid.appendChild(cell);
+      }
+    }
+
+    function selectCalendarDate(dateStr) {
+      AppState.calendarSelectedDate = dateStr;
+      renderCalendar();
+      renderSelectedDateSchedule();
+    }
+    window.selectCalendarDate = selectCalendarDate;
+
+    function filterSelectedDateItems(filterType) {
+      AppState.calendarFilter = filterType;
+      ['all', 'event', 'task'].forEach(t => {
+        const btn = document.getElementById(`cal-filter-${t}`);
+        if (!btn) return;
+        if (t === filterType) {
+          btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-[#38767E] text-white transition";
+        } else {
+          btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+        }
+      });
+      renderSelectedDateSchedule();
+    }
+    window.filterSelectedDateItems = filterSelectedDateItems;
+
+    function renderSelectedDateSchedule() {
+      const dateStr = AppState.calendarSelectedDate || todayIsoString;
+      const container = document.getElementById('selected-date-items-container');
+      const heading = document.getElementById('selected-date-heading');
+      const countEl = document.getElementById('selected-date-count');
+
+      const parts = dateStr.split('-');
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      const d = parseInt(parts[2], 10);
+      const dateObj = new Date(y, m - 1, d);
+
+      const now = new Date();
+      const isToday = (now.getFullYear() === y && (now.getMonth() + 1) === m && now.getDate() === d);
+      const weekdays = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+      const displayDay = isToday ? 'Hôm nay' : weekdays[dateObj.getDay()];
+      
+      if (heading) heading.innerText = `${displayDay} - ${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+
+      let items = AppState.calendarEvents.filter(it => it.date === dateStr);
+      if (AppState.calendarFilter !== 'all') {
+        items = items.filter(it => it.type === AppState.calendarFilter);
+      }
+
+      if (countEl) countEl.innerText = `${items.length} mục`;
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="py-6 text-center text-slate-400">
+            <i data-lucide="calendar-plus" class="w-6 h-6 mx-auto mb-1 text-slate-300"></i>
+            <p class="text-xs font-semibold">Chưa có lịch trình trong ngày này</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      items.forEach(item => {
+        const itemRow = document.createElement('div');
+        itemRow.className = "flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition group border border-transparent hover:border-slate-100 text-xs sm:text-sm";
+
+        if (item.type === 'event') {
+          itemRow.innerHTML = `
+            <span class="w-2.5 h-2.5 rounded-full mt-1 shrink-0 shadow-xs" style="background-color: ${item.color || '#E5A93C'}"></span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] sm:text-[11px] font-semibold text-slate-400">${item.startTime || 'Cả ngày'}${item.endTime ? ' - ' + item.endTime : ''}</p>
+              <p class="text-xs sm:text-sm font-bold text-[#1D545B] group-hover:text-[#13616B] transition leading-snug">${escapeHtml(item.title)}</p>
+              ${item.location ? `<p class="text-[11px] font-medium text-slate-500 mt-0.5">${escapeHtml(item.location)}</p>` : ''}
+            </div>
+            <button onclick="deleteCalendarItem('${item.id}')" title="Xóa" class="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          `;
+        } else {
+          const checked = item.completed ? 'checked' : '';
+          const lineThrough = item.completed ? 'line-through text-slate-400' : 'text-[#1D545B]';
+          
+          let catBadgeText = 'Việc cần làm';
+          let catBg = '#E0F2FE';
+          let catText = '#0369A1';
+
+          if (item.category === 'custom') {
+            catBadgeText = item.customLabel || 'Tự chọn';
+            catBg = '#FCE7F3';
+            catText = '#BE185D';
+          } else if (TASK_CATEGORY_MAP[item.category]) {
+            const conf = TASK_CATEGORY_MAP[item.category];
+            catBadgeText = conf.name;
+            catBg = conf.bg;
+            catText = conf.text;
+          }
+
+          itemRow.innerHTML = `
+            <input type="checkbox" ${checked} onchange="toggleCalendarTaskComplete('${item.id}', this.checked)"
+              class="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-0.5 rounded text-[#2F6F75] border-slate-300 focus:ring-0 cursor-pointer shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded" style="background-color: ${catBg}; color: ${catText}">${catBadgeText}</span>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400">${item.startTime || ''}</span>
+              </div>
+              <p class="text-xs sm:text-sm font-bold ${lineThrough} transition mt-0.5 leading-snug">${escapeHtml(item.title)}</p>
+            </div>
+            <button onclick="deleteCalendarItem('${item.id}')" title="Xóa" class="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          `;
+        }
+        container.appendChild(itemRow);
+      });
+
+      lucide.createIcons();
+    }
+
+    function toggleCalendarTaskComplete(id, isCompleted) {
+      const task = AppState.calendarEvents.find(it => it.id === id);
+      if (task) {
+        task.completed = isCompleted;
+        renderSelectedDateSchedule();
+        showNotificationToast(isCompleted ? 'Đã hoàn thành việc cần làm! 🎉' : 'Đã mở lại việc cần làm.');
+      }
+    }
+    window.toggleCalendarTaskComplete = toggleCalendarTaskComplete;
+
+    function deleteCalendarItem(id) {
+      AppState.calendarEvents = AppState.calendarEvents.filter(it => it.id !== id);
+      renderCalendar();
+      renderSelectedDateSchedule();
+      renderUpcomingEvents();
+      showNotificationToast('Đã xóa mục khỏi lịch.');
+    }
+    window.deleteCalendarItem = deleteCalendarItem;
+
+    function renderUpcomingEvents() {
+      const container = document.getElementById('upcoming-events-grid');
+      if (!container) return;
+
+      const upcomings = AppState.calendarEvents
+        .filter(it => it.date >= AppState.calendarSelectedDate)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(0, 3);
+
+      if (upcomings.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center py-4 text-xs text-slate-400">Chưa có sự kiện sắp tới</div>`;
+        return;
+      }
+
+      container.innerHTML = upcomings.map(ev => {
+        const parts = ev.date.split('-');
+        const dateFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        const badgeColor = ev.type === 'task' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800';
+        return `
+          <div class="p-3.5 sm:p-4 rounded-2xl bg-[#F4F9FA] border border-[#DEEDF0] flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] sm:text-xs font-bold ${badgeColor} px-2 py-0.5 rounded-md">${dateFormatted} • ${ev.type === 'task' ? 'Việc cần làm' : 'Sự kiện'}</span>
+              <p class="font-bold text-[#1F545B] mt-1.5 line-clamp-1 text-xs sm:text-sm">${escapeHtml(ev.title)}</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">${ev.location ? escapeHtml(ev.location) : (ev.desc ? escapeHtml(ev.desc) : 'Lịch cá nhân UEH')}</p>
+            </div>
+            <p class="text-[10px] sm:text-[11px] font-semibold text-[#2F6F75] mt-2">${ev.startTime || 'Cả ngày'}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openAddCalendarModal(defaultDate, type = 'event') {
+      const modal = document.getElementById('modal-add-calendar');
+      modal.classList.remove('hidden');
+
+      const targetDate = defaultDate || AppState.calendarSelectedDate || todayIsoString;
+      document.getElementById('cal-input-date').value = targetDate;
+      document.getElementById('cal-input-title').value = '';
+      document.getElementById('cal-input-location').value = '';
+      document.getElementById('cal-input-desc').value = '';
+
+      switchCalendarModalType(type);
+      lucide.createIcons();
+    }
+    window.openAddCalendarModal = openAddCalendarModal;
+
+    function switchCalendarModalType(type) {
+      AppState.calendarModalType = type;
+      const tabEvent = document.getElementById('tab-cal-type-event');
+      const tabTask = document.getElementById('tab-cal-type-task');
+      const fieldsEvent = document.getElementById('cal-fields-event');
+      const fieldsTask = document.getElementById('cal-fields-task');
+      const labelTitle = document.getElementById('label-cal-title');
+      const inputTitle = document.getElementById('cal-input-title');
+      const colorPicker = document.getElementById('cal-color-picker-wrap');
+
+      if (type === 'event') {
+        tabEvent.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white shadow-xs transition";
+        tabTask.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-semibold text-xs sm:text-sm text-slate-600 hover:text-[#1A4F56] transition";
+        fieldsEvent.classList.remove('hidden');
+        fieldsTask.classList.add('hidden');
+        colorPicker.classList.remove('hidden');
+        labelTitle.innerText = "Tiêu đề sự kiện *";
+        inputTitle.placeholder = "VD: Triết học Mác - Lênin / Họp nhóm UEH...";
+      } else {
+        tabTask.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white shadow-xs transition";
+        tabEvent.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-semibold text-xs sm:text-sm text-slate-600 hover:text-[#1A4F56] transition";
+        fieldsEvent.classList.add('hidden');
+        fieldsTask.classList.remove('hidden');
+        colorPicker.classList.add('hidden');
+        labelTitle.innerText = "Nhiệm vụ cần hoàn thành *";
+        inputTitle.placeholder = "VD: Nộp báo cáo tài chính UEH, Ôn tập...";
+      }
+    }
+    window.switchCalendarModalType = switchCalendarModalType;
+
+    function toggleAllDayEvent(isChecked) {
+      const rangeWrap = document.getElementById('cal-time-range-wrap');
+      if (isChecked) {
+        rangeWrap.classList.add('opacity-40', 'pointer-events-none');
+      } else {
+        rangeWrap.classList.remove('opacity-40', 'pointer-events-none');
+      }
+    }
+    window.toggleAllDayEvent = toggleAllDayEvent;
+
+    function handleTaskCategoryChange(val) {
+      const customWrap = document.getElementById('cal-custom-task-wrap');
+      if (val === 'custom') {
+        customWrap.classList.remove('hidden');
+      } else {
+        customWrap.classList.add('hidden');
+      }
+    }
+    window.handleTaskCategoryChange = handleTaskCategoryChange;
+
+    function handleSaveCalendarItem(e) {
+      e.preventDefault();
+      const type = AppState.calendarModalType;
+      const title = document.getElementById('cal-input-title').value.trim();
+      const date = document.getElementById('cal-input-date').value;
+      const desc = document.getElementById('cal-input-desc').value.trim();
+      const newId = 'cal-' + Date.now();
+
+      if (type === 'event') {
+        const isAllDay = document.getElementById('cal-all-day').checked;
+        const startTime = isAllDay ? 'Cả ngày' : document.getElementById('cal-time-start').value;
+        const endTime = isAllDay ? '' : document.getElementById('cal-time-end').value;
+        const location = document.getElementById('cal-input-location').value.trim();
+        
+        let color = activeCustomEventColor;
+        if (!color) {
+          const colorRadio = document.querySelector('input[name="cal-color"]:checked');
+          color = colorRadio ? colorRadio.value : '#E5A93C';
+        }
+
+        AppState.calendarEvents.push({
+          id: newId,
+          type: 'event',
+          title,
+          date,
+          startTime,
+          endTime,
+          location,
+          color,
+          desc
         });
-    </script>
+        showNotificationToast('Đã thêm sự kiện vào Lịch thành công!');
+      } else {
+        const taskTime = document.getElementById('cal-task-time').value;
+        const categorySelect = document.getElementById('cal-task-category').value;
+        const syncTodo = document.getElementById('cal-sync-todo').checked;
 
+        let taskCat = categorySelect;
+        let customLabel = '';
+        let taskColor = '#0284C7';
+
+        if (categorySelect === 'custom') {
+          const inputLabel = document.getElementById('cal-task-custom-label').value.trim();
+          customLabel = inputLabel || 'Tự chọn';
+          if (activeCustomTaskColor) {
+            taskColor = activeCustomTaskColor;
+          } else {
+            const customColorRadio = document.querySelector('input[name="custom-label-color"]:checked');
+            taskColor = customColorRadio ? customColorRadio.value : '#EC4899';
+          }
+        } else {
+          const catInfo = TASK_CATEGORY_MAP[categorySelect];
+          if (catInfo) taskColor = catInfo.color;
+        }
+
+        AppState.calendarEvents.push({
+          id: newId,
+          type: 'task',
+          title,
+          date,
+          startTime: taskTime,
+          completed: false,
+          category: taskCat,
+          customLabel,
+          color: taskColor,
+          desc
+        });
+
+        if (syncTodo) {
+          const parts = date.split('-');
+          AppState.todos.push({
+            id: 'td-' + Date.now(),
+            title,
+            cat: taskCat === 'custom' ? 'khac' : taskCat,
+            timeframe: date === todayIsoString ? 'today' : 'upcoming',
+            date: `${parts[2]}/${parts[1]}/${parts[0]}`,
+            completed: false,
+            icon: 'check-square',
+            bg: `${taskColor}25`,
+            color: taskColor
+          });
+          renderTodoList();
+        }
+        showNotificationToast('Đã thêm việc cần làm thành công!');
+      }
+
+      closeModal('modal-add-calendar');
+      AppState.calendarSelectedDate = date;
+      renderCalendar();
+      renderSelectedDateSchedule();
+      renderUpcomingEvents();
+      lucide.createIcons();
+    }
+    window.handleSaveCalendarItem = handleSaveCalendarItem;
+
+    let currentStudyCat = 'all';
+    function setStudyCategory(cat) {
+      currentStudyCat = cat;
+      ['all', 'hocvu', 'daotao', 'bieumau', 'khac'].forEach(c => {
+        const btn = document.getElementById(`btn-study-cat-${c}`);
+        if (!btn) return;
+        btn.className = (c === cat)
+          ? "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs"
+          : "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#E9F3F5] text-[#22575E] hover:bg-[#D8ECF0] transition";
+      });
+      renderStudyList();
+    }
+    window.setStudyCategory = setStudyCategory;
+
+    function filterStudyItems() {
+      renderStudyList();
+    }
+    window.filterStudyItems = filterStudyItems;
+
+    function applyStudyFilters() {
+      renderStudyList();
+    }
+    window.applyStudyFilters = applyStudyFilters;
+
+    function resetStudyFilters() {
+      const defaultTime = document.querySelector('input[name="study-filter-time"][value="moinhat"]');
+      if (defaultTime) defaultTime.checked = true;
+
+      ['study-src-congthongtin', 'study-src-portal', 'study-src-email', 'study-type-chinhthuc', 'study-type-khac'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = true;
+      });
+
+      renderStudyList();
+      showNotificationToast('Đã đặt lại các bộ lọc thông tin.');
+    }
+    window.resetStudyFilters = resetStudyFilters;
+
+    function quickFillStudySearch(term) {
+      const searchInput = document.getElementById('study-search-input');
+      if (searchInput) {
+        searchInput.value = term;
+        renderStudyList();
+      }
+    }
+    window.quickFillStudySearch = quickFillStudySearch;
+
+    function clearStudySearch() {
+      const searchInput = document.getElementById('study-search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        renderStudyList();
+        searchInput.focus();
+      }
+    }
+    window.clearStudySearch = clearStudySearch;
+
+    function renderStudyList() {
+      const searchInput = document.getElementById('study-search-input');
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const listEl = document.getElementById('study-items-list');
+      const titleEl = document.getElementById('study-results-title');
+      const counterEl = document.getElementById('study-results-counter');
+      const suggestionsWrap = document.getElementById('study-suggestions-container');
+      const clearBtn = document.getElementById('study-clear-search');
+
+      if (clearBtn) {
+        if (query) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
+
+      const isSearchMode = Boolean(query);
+      if (!isSearchMode) {
+        if (suggestionsWrap) suggestionsWrap.classList.remove('hidden');
+        if (titleEl) {
+          titleEl.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-[#2F6F75]"></i><span>Gợi ý tìm kiếm mặc định</span>`;
+        }
+        if (counterEl) counterEl.innerText = "Dành cho sinh viên UEH";
+      } else {
+        if (suggestionsWrap) suggestionsWrap.classList.add('hidden');
+      }
+
+      const timeFilterEl = document.querySelector('input[name="study-filter-time"]:checked');
+      const timeFilter = timeFilterEl ? timeFilterEl.value : 'moinhat';
+
+      const selectedSources = [];
+      if (document.getElementById('study-src-congthongtin')?.checked) selectedSources.push('congthongtin');
+      if (document.getElementById('study-src-portal')?.checked) selectedSources.push('portal');
+      if (document.getElementById('study-src-email')?.checked) selectedSources.push('email');
+
+      const selectedTypes = [];
+      if (document.getElementById('study-type-chinhthuc')?.checked) selectedTypes.push('chinhthuc');
+      if (document.getElementById('study-type-khac')?.checked) selectedTypes.push('khac');
+
+      const referenceDate = new Date(2026, 9, 13);
+
+      const filtered = AppState.studyItems.filter(item => {
+        const matchesCat = currentStudyCat === 'all' || item.cat === currentStudyCat;
+        const matchesQuery = !query || item.title.toLowerCase().includes(query) || item.source.toLowerCase().includes(query);
+        const matchesSource = selectedSources.length > 0 && selectedSources.includes(item.sourceTag);
+        const matchesType = selectedTypes.length > 0 && selectedTypes.includes(item.docType);
+
+        let matchesTime = true;
+        if (timeFilter !== 'tatca') {
+          const parts = item.date.split('/');
+          const itemDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          const diffDays = Math.floor((referenceDate - itemDate) / (1000 * 60 * 60 * 24));
+
+          if (timeFilter === 'moinhat') matchesTime = diffDays <= 30;
+          else if (timeFilter === '3thang') matchesTime = diffDays <= 90;
+          else if (timeFilter === '6thang') matchesTime = diffDays <= 180;
+        }
+
+        return matchesCat && matchesQuery && matchesSource && matchesType && matchesTime;
+      });
+
+      if (isSearchMode) {
+        if (titleEl) {
+          titleEl.innerHTML = `<i data-lucide="search" class="w-4 h-4 text-[#2F6F75]"></i><span>Kết quả tìm kiếm (${filtered.length})</span>`;
+        }
+        if (counterEl) counterEl.innerText = `Tìm thấy ${filtered.length} kết quả`;
+      }
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="py-8 text-center text-slate-400 font-medium bg-[#F9FCFC] rounded-2xl border border-dashed border-slate-200">
+            <i data-lucide="filter-x" class="w-7 h-7 mx-auto mb-1 text-slate-300"></i>
+            <p class="text-xs">Không có tài liệu nào phù hợp với bộ lọc</p>
+            <button onclick="resetStudyFilters()" class="mt-1 text-xs font-bold text-[#2F6F75] hover:underline">Đặt lại các bộ lọc</button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(item => `
+        <div class="p-3 sm:p-4 rounded-2xl bg-white hover:bg-[#F2F9FA] border border-slate-100 hover:border-[#BFE0E5] transition cursor-pointer group shadow-2xs"
+             onclick="openStudyDetail(${item.id})">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E5F3F5] text-[#246A72] flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <i data-lucide="${item.icon}" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                ${!isSearchMode ? `<span class="bg-[#D2EFF3] text-[#14565E] text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-wider">Gợi ý</span>` : ''}
+                ${item.hasSubLevels ? `<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.2 rounded-full">Phân lớp</span>` : ''}
+                <span class="text-[11px] text-slate-400 font-medium">${item.date}</span>
+                <span class="text-[11px] text-[#2F6F75] font-semibold">• ${item.source}</span>
+              </div>
+              <h4 class="text-xs sm:text-sm font-bold text-[#1D545B] group-hover:text-[#0C6E7A] transition leading-snug">
+                ${escapeHtml(item.title)}
+              </h4>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-[#2F6F75] transition mt-2 shrink-0"></i>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    let currentStudyItem = null;
+    function openStudyDetail(itemId) {
+      const item = AppState.studyItems.find(it => it.id === itemId);
+      if (!item) return;
+
+      currentStudyItem = item;
+      const modal = document.getElementById('modal-study-detail');
+      const breadcrumb = document.getElementById('study-detail-breadcrumb');
+      breadcrumb.innerText = item.title;
+      modal.classList.remove('hidden');
+
+      if (item.hasSubLevels && item.subLevels && item.subLevels.length > 0) {
+        renderStudySubLevels(item);
+      } else {
+        renderStudyDirectContent(item);
+      }
+
+      lucide.createIcons();
+    }
+    window.openStudyDetail = openStudyDetail;
+
+    function renderStudySubLevels(item) {
+      const contentArea = document.getElementById('study-detail-content-area');
+      const breadcrumb = document.getElementById('study-detail-breadcrumb');
+      breadcrumb.innerText = item.title;
+
+      contentArea.innerHTML = `
+        <div class="space-y-5">
+          <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#EEF8FA] border border-[#D5EBF0]">
+            <div class="w-10 h-10 rounded-xl bg-white text-[#20585F] flex items-center justify-center shrink-0 shadow-xs">
+              <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-[#18484F]">${escapeHtml(item.title)}</h3>
+              <p class="text-xs text-slate-500 mt-0.5">${item.source} • Cập nhật: ${item.date}</p>
+              <p class="text-xs text-teal-800 font-medium mt-1.5">${escapeHtml(item.subLevelsDescription || 'Vui lòng chọn phân loại cụ thể:')}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh sách các tùy chọn & phân lớp (${item.subLevels.length})</h4>
+            <div class="grid grid-cols-1 gap-2.5">
+              ${item.subLevels.map(sub => `
+                <div onclick="openSubLevelContent('${sub.id}')"
+                     class="p-3 sm:p-4 rounded-2xl border border-slate-200 hover:border-teal-500 bg-white hover:bg-teal-50/30 transition cursor-pointer group flex items-center justify-between shadow-2xs">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-xs sm:text-sm text-[#1D545B] group-hover:text-[#0E5F68] transition">${escapeHtml(sub.title)}</span>
+                        ${sub.badge ? `<span class="text-[9px] bg-teal-100 text-teal-800 font-extrabold px-1.5 py-0.2 rounded-full">${escapeHtml(sub.badge)}</span>` : ''}
+                      </div>
+                      <p class="text-[11px] text-slate-400 mt-0.5">Nhấp để xem quy định chi tiết</p>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-teal-600 transition"></i>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function openSubLevelContent(subId) {
+      if (!currentStudyItem || !currentStudyItem.subLevels) return;
+      const sub = currentStudyItem.subLevels.find(s => s.id === subId);
+      if (!sub) return;
+
+      const contentArea = document.getElementById('study-detail-content-area');
+      const breadcrumb = document.getElementById('study-detail-breadcrumb');
+
+      breadcrumb.innerHTML = `
+        <span onclick="renderStudySubLevels(currentStudyItem)" class="cursor-pointer hover:underline text-teal-700 font-semibold">${escapeHtml(currentStudyItem.title)}</span>
+        <span class="text-slate-400">/</span>
+        <span class="text-[#1D545B] font-bold">${escapeHtml(sub.title)}</span>
+      `;
+
+      contentArea.innerHTML = `
+        <div class="space-y-4">
+          <button onclick="renderStudySubLevels(currentStudyItem)" class="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-200 w-fit transition">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Quay lại các phân lớp
+          </button>
+
+          <div class="border-b border-slate-100 pb-3">
+            <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${sub.badge || 'Chi tiết'}</span>
+            <h3 class="text-base sm:text-lg font-bold text-[#14474E] mt-1.5">${escapeHtml(sub.title)}</h3>
+          </div>
+
+          <div class="leading-relaxed text-slate-700 text-xs sm:text-sm">
+            ${sub.content}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+    window.openSubLevelContent = openSubLevelContent;
+
+    function renderStudyDirectContent(item) {
+      const contentArea = document.getElementById('study-detail-content-area');
+      const breadcrumb = document.getElementById('study-detail-breadcrumb');
+      breadcrumb.innerText = item.title;
+
+      contentArea.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#EEF8FA] border border-[#D5EBF0]">
+            <div class="w-10 h-10 rounded-xl bg-white text-[#20585F] flex items-center justify-center shrink-0 shadow-xs">
+              <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-[#18484F]">${escapeHtml(item.title)}</h3>
+              <p class="text-xs text-slate-500 mt-0.5">${item.source} • Ngày ban hành: ${item.date}</p>
+            </div>
+          </div>
+
+          <div class="leading-relaxed text-slate-700 text-xs sm:text-sm">
+            ${item.directContent || '<p>Nội dung đang được cập nhật từ cổng thông tin UEH.</p>'}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function printOrShareStudyDoc() {
+      if (!currentStudyItem) return;
+      showNotificationToast(`Đã sao chép liên kết tài liệu: "${currentStudyItem.title}"`);
+    }
+    window.printOrShareStudyDoc = printOrShareStudyDoc;
+
+    function renderNotificationsList() {
+      const notiList = document.getElementById('notifications-list');
+      if (!notiList) return;
+      notiList.innerHTML = AppState.notifications.map(item => `
+        <div class="noti-item flex items-center gap-3.5 sm:gap-4 pt-4 first:pt-0 cursor-pointer group" onclick="showNotiDetail('${item.id}')" data-category="${item.cat === 'Học vụ' ? 'hocvu' : (item.cat === 'Học bổng' ? 'hocbong' : 'sukien')}">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition" style="background-color: ${item.bg}">
+            <i data-lucide="${item.icon}" class="w-5 h-5 sm:w-6 sm:h-6" style="color: ${item.color}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-xs sm:text-sm font-bold text-[#1A5057] group-hover:text-[#0D717E] transition line-clamp-1">${escapeHtml(item.title)}</h4>
+            <p class="text-[11px] font-medium text-slate-500 mt-0.5">${item.cat} - ${item.date}</p>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterNotificationCategory(cat) {
+      ['all', 'hocvu', 'hocbong', 'sukien', 'khac'].forEach(t => {
+        const btn = document.getElementById(`btn-noti-${t}`);
+        if (!btn) return;
+        btn.className = (t === cat)
+          ? "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs"
+          : "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition";
+      });
+
+      document.querySelectorAll('.noti-item').forEach(el => {
+        el.style.display = (cat === 'all' || el.getAttribute('data-category') === cat) ? 'flex' : 'none';
+      });
+    }
+    window.filterNotificationCategory = filterNotificationCategory;
+
+    function showNotiDetail(id) {
+      const item = AppState.notifications.find(n => n.id === id);
+      if (!item) return;
+
+      document.getElementById('modal-noti-title').innerText = item.title;
+      document.getElementById('modal-noti-meta').innerText = `${item.cat} • Ngày đăng: ${item.date}`;
+      document.getElementById('modal-noti-body').innerHTML = `
+        <p>${item.content}</p>
+        <p class="text-[11px] text-slate-400 mt-2">Đơn vị ban hành: Đại học Kinh tế TP. Hồ Chí Minh (UEH)</p>
+      `;
+
+      const iconBox = document.getElementById('modal-noti-icon');
+      iconBox.style.backgroundColor = item.bg;
+      iconBox.innerHTML = `<i data-lucide="${item.icon}" style="color:${item.color}" class="w-5 h-5 sm:w-6 sm:h-6"></i>`;
+
+      document.getElementById('modal-noti-detail').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    window.showNotiDetail = showNotiDetail;
+
+    function renderTodoList() {
+      const todayWrap = document.getElementById('todo-today-container');
+      const upcomingWrap = document.getElementById('todo-upcoming-container');
+      if (!todayWrap || !upcomingWrap) return;
+
+      const todayItems = AppState.todos.filter(t => t.timeframe === 'today');
+      const upcomingItems = AppState.todos.filter(t => t.timeframe === 'upcoming');
+
+      document.getElementById('todo-group-today-title').innerText = `Hôm nay (${todayItems.length})`;
+      document.getElementById('todo-group-upcoming-title').innerText = `Sắp tới (${upcomingItems.length})`;
+
+      todayWrap.innerHTML = todayItems.map(td => renderTodoItemHtml(td)).join('');
+      upcomingWrap.innerHTML = upcomingItems.map(td => renderTodoItemHtml(td)).join('');
+      lucide.createIcons();
+    }
+
+    function renderTodoItemHtml(td) {
+      const lineThrough = td.completed ? 'line-through text-slate-400' : 'text-[#1C4E55]';
+      return `
+        <div class="todo-item flex items-center gap-3 pt-3 first:pt-0" data-category="${td.cat}">
+          <input type="checkbox" ${td.completed ? 'checked' : ''} onchange="toggleTodoComplete('${td.id}', this)" class="w-4 h-4 rounded border-slate-300 text-[#2F6F75] focus:ring-0 cursor-pointer">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background-color: ${td.bg}">
+            <i data-lucide="${td.icon}" class="w-4 h-4" style="color: ${td.color}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="todo-text text-xs sm:text-sm font-bold ${lineThrough}">${escapeHtml(td.title)}</p>
+            ${td.date ? `<p class="text-[11px] font-medium text-slate-500 mt-0.5">${td.cat.toUpperCase()} - ${td.date}</p>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleTodoComplete(todoId, checkbox) {
+      const todo = AppState.todos.find(t => t.id === todoId);
+      if (todo) {
+        todo.completed = checkbox.checked;
+        const row = checkbox.closest('.todo-item');
+        const text = row.querySelector('.todo-text');
+        if (checkbox.checked) {
+          text.classList.add('line-through', 'text-slate-400');
+          showNotificationToast('Đã hoàn thành công việc! 🎉');
+        } else {
+          text.classList.remove('line-through', 'text-slate-400');
+        }
+        updateBadgeCounters();
+      }
+    }
+    window.toggleTodoComplete = toggleTodoComplete;
+
+    function setTodoCategory(cat) {
+      ['all', 'hocvu', 'hocbong', 'sukien', 'khac'].forEach(t => {
+        const btn = document.getElementById(`btn-todo-${t}`);
+        if (!btn) return;
+        btn.className = (t === cat)
+          ? "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#38767E] text-white transition shadow-xs"
+          : "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm bg-[#EDF6F8] text-[#22575E] hover:bg-[#DCEEF1] transition";
+      });
+
+      document.querySelectorAll('.todo-item').forEach(el => {
+        el.style.display = (cat === 'all' || el.getAttribute('data-category') === cat) ? 'flex' : 'none';
+      });
+    }
+    window.setTodoCategory = setTodoCategory;
+
+    function handleAdminCreateNoti(e) {
+      e.preventDefault();
+      const title = document.getElementById('admin-noti-title').value.trim();
+      const cat = document.getElementById('admin-noti-cat').value;
+      const date = document.getElementById('admin-noti-date').value.trim();
+      const content = document.getElementById('admin-noti-content').value.trim();
+
+      const newId = (AppState.notifications.length + 1).toString();
+      const newNoti = {
+        id: newId,
+        title,
+        cat: cat === 'hocvu' ? 'Học vụ' : (cat === 'hocbong' ? 'Học bổng' : 'Sự kiện'),
+        date,
+        icon: 'bell',
+        bg: '#FED271',
+        color: '#BD6C05',
+        content
+      };
+
+      AppState.notifications.unshift(newNoti);
+      document.getElementById('admin-noti-count').innerText = AppState.notifications.length;
+      renderNotificationsList();
+      updateAdminDashboardMetrics();
+      updateBadgeCounters();
+
+      document.getElementById('admin-noti-title').value = '';
+      document.getElementById('admin-noti-content').value = '';
+
+      showNotificationToast('Admin: Thông báo đã được gửi đến toàn bộ người dùng UEH StudyBuddy!');
+    }
+    window.handleAdminCreateNoti = handleAdminCreateNoti;
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeModal = closeModal;
+
+    function openAccountModal() {
+      const modal = document.getElementById('modal-account');
+      if (!modal) return;
+
+      const currentName = document.getElementById('current-user-name')?.innerText || 'Nguyễn Văn A';
+      const currentRole = document.getElementById('current-user-role')?.innerText || 'Tân sinh viên K52';
+      const username = AppState.currentUserUsername || (AppState.currentUser === 'admin' ? 'admin' : 'ueher01');
+
+      const nameInput = document.getElementById('acc-input-name');
+      const roleInput = document.getElementById('acc-input-role');
+      const usernameDisplay = document.getElementById('acc-display-username');
+
+      if (nameInput) nameInput.value = currentName;
+      if (roleInput) roleInput.value = currentRole;
+      if (usernameDisplay) usernameDisplay.innerText = username;
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    window.openAccountModal = openAccountModal;
+
+    function handleSaveAccountProfile(e) {
+      if (e) e.preventDefault();
+      const newName = document.getElementById('acc-input-name').value.trim();
+      const newRole = document.getElementById('acc-input-role').value.trim();
+
+      if (!newName) {
+        showNotificationToast('Vui lòng nhập họ và tên hiển thị!');
+        return;
+      }
+
+      const nameEl = document.getElementById('current-user-name');
+      const roleEl = document.getElementById('current-user-role');
+
+      if (nameEl) nameEl.innerText = newName;
+      if (roleEl) roleEl.innerText = newRole || 'Sinh viên UEH';
+
+      closeModal('modal-account');
+      showNotificationToast(`Đã đổi tên tài khoản thành "${newName}" thành công! 🎉`);
+    }
+    window.handleSaveAccountProfile = handleSaveAccountProfile;
+
+    let toastTimeout;
+    function showNotificationToast(msg) {
+      const toast = document.getElementById('app-toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+      text.innerText = msg;
+
+      clearTimeout(toastTimeout);
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3200);
+    }
+    window.showNotificationToast = showNotificationToast;
+
+    function updateBadgeCounters() {
+      // 1. Cập nhật số lượng Thông báo chính xác
+      const totalNotiCount = AppState.notifications ? AppState.notifications.length : 0;
+      const notiBadge = document.getElementById('unread-badge');
+      if (notiBadge) {
+        notiBadge.innerText = totalNotiCount;
+        notiBadge.style.display = totalNotiCount > 0 ? 'inline-block' : 'none';
+      }
+
+      // Mobile notification dot/badge
+      const mobileNotiBtn = document.getElementById('mobile-nav-notifications');
+      if (mobileNotiBtn) {
+        let mobileBadge = mobileNotiBtn.querySelector('.mobile-noti-count-badge');
+        if (!mobileBadge) {
+          const oldDot = mobileNotiBtn.querySelector('.bg-rose-500');
+          if (oldDot) oldDot.remove();
+          mobileBadge = document.createElement('span');
+          mobileBadge.className = 'mobile-noti-count-badge absolute top-1 right-2 bg-rose-500 text-white text-[9px] font-bold px-1 rounded-full leading-tight';
+          mobileNotiBtn.appendChild(mobileBadge);
+        }
+        mobileBadge.innerText = totalNotiCount;
+        mobileBadge.style.display = totalNotiCount > 0 ? 'inline-block' : 'none';
+      }
+
+      // 2. Cập nhật số lượng To-Do List chính xác (các công việc chưa hoàn thành)
+      const pendingTodos = AppState.todos ? AppState.todos.filter(t => !t.completed).length : 0;
+      const todoBadge = document.getElementById('pending-todo-badge');
+      if (todoBadge) {
+        todoBadge.innerText = pendingTodos;
+        todoBadge.style.display = pendingTodos > 0 ? 'inline-block' : 'none';
+      }
+
+      // Mobile To-Do badge
+      const mobileTodoBtn = document.getElementById('mobile-nav-todo');
+      if (mobileTodoBtn) {
+        let mobileTodoBadge = mobileTodoBtn.querySelector('.mobile-todo-count-badge');
+        if (!mobileTodoBadge) {
+          mobileTodoBadge = document.createElement('span');
+          mobileTodoBadge.className = 'mobile-todo-count-badge absolute top-1 right-2 bg-[#438B92] text-white text-[9px] font-bold px-1 rounded-full leading-tight';
+          mobileTodoBtn.appendChild(mobileTodoBadge);
+        }
+        mobileTodoBadge.innerText = pendingTodos;
+        mobileTodoBadge.style.display = pendingTodos > 0 ? 'inline-block' : 'none';
+      }
+    }
+    window.updateBadgeCounters = updateBadgeCounters;
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Khởi chạy khi DOM sẵn sàng
+    window.addEventListener('DOMContentLoaded', () => {
+      initRealtimeClock();
+      renderStudyList();
+      renderNotificationsList();
+      renderTodoList();
+      renderCalendar();
+      renderSelectedDateSchedule();
+      renderUpcomingEvents();
+      updateAdminDashboardMetrics();
+      updateBadgeCounters();
+      lucide.createIcons();
+    });
+  </script>
 </body>
 </html>
